@@ -1293,7 +1293,7 @@ Transform:
   m_GameObject: {fileID: 212589323}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.8594955, y: 0.14500292, z: 0.81710124}
+  m_LocalPosition: {x: -0.1, y: 1.69, z: 2.2399998}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3039,7 +3039,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -27.143677, y: -214.84998}
+  m_AnchoredPosition: {x: -27.143555, y: -214.84998}
   m_SizeDelta: {x: 54.2874, y: -429.69}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &389980160
@@ -4479,7 +4479,7 @@ Transform:
   m_GameObject: {fileID: 649982147}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.8594955, y: 0.14500292, z: 0.81710124}
+  m_LocalPosition: {x: -0.1, y: 1.69, z: 2.2399998}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -15652,6 +15652,8 @@ GameObject:
   m_Component:
   - component: {fileID: 2116478424}
   - component: {fileID: 2116478425}
+  - component: {fileID: 2116478426}
+  - component: {fileID: 2116478427}
   m_Layer: 8
   m_Name: CameraRoot
   m_TagString: Untagged
@@ -15668,7 +15670,7 @@ Transform:
   m_GameObject: {fileID: 2116478423}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.8594955, y: -0.3549971, z: 3.8171012}
+  m_LocalPosition: {x: -0.1, y: 1.19, z: 5.24}
   m_LocalScale: {x: 1.2, y: 1.2, z: 1.2}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -15681,12 +15683,49 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2116478423}
-  m_Enabled: 1
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21c7ae97f8d316d44a552f2eeda8bcc3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ThirdPersonCameraController
+  target: {fileID: 0}
+  distance: 0.2
+  heightOffset: 1.6
+  shoulderOffset: 0.6
+  sensitivityX: 180
+  sensitivityY: 120
+  minPitch: -15
+  maxPitch: 50
+  followSpeed: 15
+--- !u!114 &2116478426
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2116478423}
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cc82a54a02e072e42a4fa02a96947112, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraRootFollower
   target: {fileID: 0}
+--- !u!114 &2116478427
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2116478423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89661754eaf22694d83668c2ac68f18e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FixedFollowCamera
+  distance: 0.1
+  heightOffset: 1.8
+  shoulderOffset: 0
+  followSpeed: 10
 --- !u!4 &2118217246 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 414920, guid: ff42754d1c37f4da7b050c07fe83d3af, type: 3}

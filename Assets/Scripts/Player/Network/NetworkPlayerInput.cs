@@ -1,80 +1,136 @@
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using StarterAssets;
 
 namespace Player
 {
-    // Lee el input del jugador local y lo envía al servidor para que
-    // ThirdPersonController mueva el personaje de forma autoritativa.
+    // Lee el input del jugador local y lo pasa directamente a StarterAssetsInputs,
+    // sin depender del modo "Behavior" de PlayerInput ni de defines de compilación.
+    // Desactiva PlayerInput en los personajes ajenos para que no los controles.
     public class NetworkPlayerInput : NetworkBehaviour
     {
-        private PlayerInput playerInput;
+        private PlayerInput        _playerInput;
+        private StarterAssetsInputs _inputs;
 
         private void Awake()
         {
-            playerInput = GetComponent<PlayerInput>();
+            _playerInput = GetComponent<PlayerInput>();
+            _inputs      = GetComponent<StarterAssetsInputs>();
         }
 
         public override void OnNetworkSpawn()
         {
-            // Solo el dueño del objeto envía input; los demás desactivan su PlayerInput
-            if (!IsOwner && playerInput != null)
-                playerInput.enabled = false;
-        }
-
-        // Llamado por el Input System al mover WASD / stick
-        public void Move(InputAction.CallbackContext context)
-        {
-            if (!IsOwner) return;
-
-            Vector2 input = context.ReadValue<Vector2>();
-            float cameraY = Camera.main != null ? Camera.main.transform.eulerAngles.y : 0f;
-            SubmitMoveServerRpc(input, cameraY);
-        }
-
-        // Llamado por el Input System al presionar salto
-        public void Jump(InputAction.CallbackContext context)
-        {
-            if (!IsOwner) return;
-
-            if (context.performed)
-                SubmitJumpServerRpc();
-        }
-
-        // Llamado por el Input System al presionar/soltar sprint
-        public void Sprint(InputAction.CallbackContext context)
-        {
-            if (!IsOwner) return;
-
-            SubmitSprintServerRpc(context.ReadValue<float>() > 0.5f);
-        }
-
-        // Envía dirección de movimiento y rotación de cámara al servidor
-        [ServerRpc]
-        private void SubmitMoveServerRpc(Vector2 input, float cameraY)
-        {
-            var motor = GetComponent<NetworkCharacterMotor>();
-            if (motor != null)
+            if (!IsOwner)
             {
-                motor.SetMoveInput(input);
-                motor.SetCameraRotation(cameraY);
+                // Personaje ajeno: desactivar input local y liberar dispositivos
+                if (_playerInput != null)
+                {
+                    _playerInput.DeactivateInput();
+                    _playerInput.enabled = false;
+                }
+                return;
+            }
+
+            // ── Jugador local: asegurar que PlayerInput esté activo ──────────
+            // Esto es crítico cuando hay varias instancias del prefab en la misma
+            // máquina (el cliente ve su propio player + la réplica del host).
+            // Si la réplica se spawneó antes, puede haber acaparado el dispositivo.
+            if (_playerInput != null)
+            {
+                _playerInput.enabled = true;
+                _playerInput.ActivateInput();
+
+                // Forzar que el action map por defecto esté habilitado
+                if (_playerInput.actions != null)
+                {
+                    var map = _playerInput.actions.FindActionMap(
+                        string.IsNullOrEmpty(_playerInput.defaultActionMap)
+                            ? "Player"
+                            : _playerInput.defaultActionMap);
+                    if (map != null && !map.enabled)
+                        map.Enable();
+                }
+            }
+
+            SubscribeActions();
+        }
+
+        public override void OnNetworkDespawn()
+        {
+            // Limpiar suscripciones al destruirse para evitar memory leaks
+            UnsubscribeActions();
+        }
+
+        // ── Suscripciones ─────────────────────────────────────────────────────
+        private void SubscribeActions()
+        {
+            if (_playerInput == null || _playerInput.actions == null) return;
+
+            var move   = _playerInput.actions.FindAction("Move");
+            var jump   = _playerInput.actions.FindAction("Jump");
+            var sprint = _playerInput.actions.FindAction("Sprint");
+
+            if (move != null)
+            {
+                move.performed += HandleMove;
+                move.canceled  += HandleMove;
+            }
+            if (jump != null)
+            {
+                jump.performed += HandleJump;
+                jump.canceled  += HandleJump;
+            }
+            if (sprint != null)
+            {
+                sprint.performed += HandleSprint;
+                sprint.canceled  += HandleSprint;
             }
         }
 
-        [ServerRpc]
-        private void SubmitJumpServerRpc()
+        private void UnsubscribeActions()
         {
-            var motor = GetComponent<NetworkCharacterMotor>();
-            if (motor != null)
-                motor.SetJump();
+            if (_playerInput == null || _playerInput.actions == null) return;
+
+            var move   = _playerInput.actions.FindAction("Move");
+            var jump   = _playerInput.actions.FindAction("Jump");
+            var sprint = _playerInput.actions.FindAction("Sprint");
+
+            if (move != null)
+            {
+                move.performed -= HandleMove;
+                move.canceled  -= HandleMove;
+            }
+            if (jump != null)
+            {
+                jump.performed -= HandleJump;
+                jump.canceled  -= HandleJump;
+            }
+            if (sprint != null)
+            {
+                sprint.performed -= HandleSprint;
+                sprint.canceled  -= HandleSprint;
+            }
         }
 
-        [ServerRpc]
-        private void SubmitSprintServerRpc(bool sprinting)
+        // ── Callbacks de input ────────────────────────────────────────────────
+        private void HandleMove(InputAction.CallbackContext ctx)
         {
-            var motor = GetComponent<NetworkCharacterMotor>();
-            if (motor != null)
-                motor.SetSprint(sprinting);
+            if (_inputs == null) return;
+            // MoveInput() existe siempre, sin depender de defines
+            _inputs.MoveInput(ctx.ReadValue<Vector2>());
+        }
+
+        private void HandleJump(InputAction.CallbackContext ctx)
+        {
+            if (_inputs == null) return;
+            _inputs.JumpInput(ctx.phase == InputActionPhase.Performed);
+        }
+
+        private void HandleSprint(InputAction.CallbackContext ctx)
+        {
+            if (_inputs == null) return;
+            _inputs.SprintInput(ctx.phase == InputActionPhase.Performed);
         }
     }
 }

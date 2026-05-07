@@ -1,55 +1,35 @@
 using Unity.Netcode;
 using UnityEngine;
 
-// Este script se encarga de posicionar a cada jugador
-// en un punto de spawn cuando se conecta al servidor.
+// Administra los puntos de spawn de la escena.
+// Los jugadores se auto-posicionan llamando GetNextSpawnPoint()
+// desde su propio OnNetworkSpawn, evitando problemas de timing
+// con callbacks que disparan antes de que PlayerObject esté listo.
 public class NetworkPlayerSpawner : NetworkBehaviour
 {
-    // Lista de puntos de spawn definidos en la escena
-    // Se asignan desde el Inspector de Unity
     [SerializeField] private Transform[] spawnPoints;
 
-    // Índice que indica cuál spawn usar
-    private int spawnIndex;
+    private int _spawnIndex;
 
-    // Este método se ejecuta cuando el objeto de red
-    // aparece en la red (cuando el servidor inicia)
-    public override void OnNetworkSpawn()
+    // Singleton simple para que el prefab del jugador pueda encontrarlo
+    public static NetworkPlayerSpawner Instance { get; private set; }
+
+    private void Awake()
     {
-        // Solo el servidor debe controlar el spawn de jugadores
-        if (!IsServer)
-            return;
-
-        // Registramos una función que se ejecutará
-        // cada vez que un cliente se conecte
-        NetworkManager.Singleton.OnClientConnectedCallback += SpawnPlayer;
+        Instance = this;
     }
 
-    // Este método se ejecuta cuando un nuevo cliente se conecta
-    private void SpawnPlayer(ulong clientId)
+    // Devuelve el siguiente spawn point disponible (solo llamar desde el servidor)
+    public Transform GetNextSpawnPoint()
     {
-        // Verifica que existan puntos de spawn configurados
-        if (spawnPoints.Length == 0)
+        if (spawnPoints == null || spawnPoints.Length == 0)
         {
-            Debug.LogError("Spawn points missing.");
-            return;
+            Debug.LogError("[NetworkPlayerSpawner] No hay spawn points asignados.");
+            return null;
         }
 
-        // Selecciona el spawn correspondiente
-        Transform spawn = spawnPoints[spawnIndex];
-
-        // Obtiene el objeto del jugador que Netcode creó automáticamente
-        NetworkObject playerObject =
-            NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
-
-        // Mueve el jugador a la posición del spawn
-        playerObject.transform.position = spawn.position;
-
-        // Ajusta también la rotación del jugador
-        playerObject.transform.rotation = spawn.rotation;
-
-        // Avanza al siguiente spawn
-        // El operador % hace que vuelva al inicio si se acaban los spawns
-        spawnIndex = (spawnIndex + 1) % spawnPoints.Length;
+        Transform point = spawnPoints[_spawnIndex];
+        _spawnIndex = (_spawnIndex + 1) % spawnPoints.Length;
+        return point;
     }
 }

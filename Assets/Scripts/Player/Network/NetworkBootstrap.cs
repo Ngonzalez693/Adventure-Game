@@ -20,9 +20,10 @@ public class NetworkBootstrap : MonoBehaviour
             return;
         }
 
-        // Registramos una función que será llamada cada vez que
-        // un cliente intente conectarse al servidor
-        NetworkManager.Singleton.ConnectionApprovalCallback = ApprovalCheck;
+        // Solo registramos el callback si Connection Approval está activo
+        // en el NetworkManager. Si no, Netcode emite un warning al iniciar.
+        if (NetworkManager.Singleton.NetworkConfig.ConnectionApproval)
+            NetworkManager.Singleton.ConnectionApprovalCallback = ApprovalCheck;
     }
 
     // Este método se ejecuta cuando un cliente intenta conectarse
