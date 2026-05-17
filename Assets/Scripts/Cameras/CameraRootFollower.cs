@@ -2,19 +2,25 @@ using UnityEngine;
 
 public class CameraRootFollower : MonoBehaviour
 {
-    [Tooltip("Se asigna automáticamente por NetworkCameraAssigner al spawnear. " +
-             "También puedes arrastrarlo manualmente aquí como alternativa.")]
-    public Transform target;
+    public Transform playerRoot;
 
-    // Llamado por NetworkCameraAssigner en tiempo de ejecución
-    public void SetTarget(Transform newTarget)
+    public void SetTarget(Transform player)
     {
-        target = newTarget;
+        playerRoot = player;
     }
 
     private void LateUpdate()
     {
-        if (target == null) return;
-        transform.position = target.position + Vector3.up * 0.9f;
+        if (playerRoot == null) return;
+
+        // Posición sigue al jugador normalmente (con Y incluida)
+        transform.position = playerRoot.position;
+
+        // Solo copia rotación Y, congela X y Z
+        transform.rotation = Quaternion.Euler(
+            0f,
+            playerRoot.eulerAngles.y,
+            0f
+        );
     }
 }
