@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 #if ENABLE_INPUT_SYSTEM && STARTER_ASSETS_PACKAGES_CHECKED
 using UnityEngine.InputSystem;
 #endif
@@ -32,7 +33,7 @@ namespace StarterAssets
 		public float GroundedRadius = 0.28f;
 		public LayerMask GroundLayers;
 
-		// ✅ Mantenemos estos campos para que no se rompan referencias en el Inspector,
+		// Mantenemos estos campos para que no se rompan referencias en el Inspector,
 		// pero ya NO los usamos para rotar la cámara (Cinemachine lo hace)
 		[Header("Cinemachine")]
 		[Tooltip("Asigna aquí el CameraRoot hijo del Player")]
@@ -53,6 +54,12 @@ namespace StarterAssets
 		// timeout deltatime
 		private float _jumpTimeoutDelta;
 		private float _fallTimeoutDelta;
+
+		// Edge-trigger para la tecla S: convierte "ir hacia atrás" en un giro de 180°
+		// que solo se dispara al PRESIONAR (no mientras se mantiene apretada).
+		private bool _sWasHeld;
+		private bool _isTurning;        // true mientras el giro animado está en curso
+		public float TurnDuration = 0.3f; // segundos que dura la animación del giro
 
 		// animation IDs
 		private int _animIDSpeed;
@@ -129,6 +136,19 @@ namespace StarterAssets
 
 		private void Move()
 		{
+			// ── Tecla S = giro animado de 180° (no movimiento hacia atrás) ─────
+			// Solo se dispara al PRESIONAR la tecla (edge). Mientras el giro
+			// está en curso no se puede volver a disparar.
+			bool sHeld = _input.move.y < -0.1f;
+			if (sHeld && !_sWasHeld && !_isTurning)
+				StartCoroutine(SmoothTurn180());
+			_sWasHeld = sHeld;
+
+			// Anulamos el componente hacia atrás: S ya no camina, solo gira.
+			// También bloqueamos movimiento mientras el giro está animándose.
+			if (_input.move.y < 0f || _isTurning)
+				_input.move = new Vector2(0f, 0f);
+
 			float targetSpeed = _input.sprint ? SprintSpeed : MoveSpeed;
 
 			if (_input.move == Vector2.zero) targetSpeed = 0.0f;
@@ -176,8 +196,46 @@ namespace StarterAssets
 			}
 		}
 
+		// Rota suavemente al jugador 180° sobre el eje Y en TurnDuration segundos.
+		// Usa una curva ease-in/out para que se vea natural.
+		private IEnumerator SmoothTurn180()
+		{
+			_isTurning = true;
+
+			float startY  = transform.eulerAngles.y;
+			float targetY = startY + 180f;
+			float elapsed = 0f;
+
+			while (elapsed < TurnDuration)
+			{
+				elapsed += Time.deltaTime;
+				float t = Mathf.Clamp01(elapsed / TurnDuration);
+				// Ease in-out suave: aceleración y desaceleración
+				t = t * t * (3f - 2f * t);
+
+				float currentY = Mathf.LerpAngle(startY, targetY, t);
+				transform.rotation = Quaternion.Euler(0f, currentY, 0f);
+
+				// Sincronizamos _targetRotation para que SmoothDampAngle
+				// no luche contra el giro cuando se reanude el movimiento.
+				_targetRotation    = currentY;
+				_rotationVelocity  = 0f;
+				yield return null;
+			}
+
+			// Aseguramos el ángulo final exacto
+			transform.rotation = Quaternion.Euler(0f, targetY, 0f);
+			_targetRotation    = targetY;
+			_isTurning = false;
+		}
+
 		private void JumpAndGravity()
 		{
+			// Salto desactivado: ignoramos _input.jump por completo.
+			// Mantenemos la gravedad y la lógica de caída para que el
+			// personaje pueda caer de plataformas / pendientes.
+			_input.jump = false;
+
 			if (Grounded)
 			{
 				_fallTimeoutDelta = FallTimeout;
@@ -191,16 +249,6 @@ namespace StarterAssets
 				if (_verticalVelocity < 0.0f)
 				{
 					_verticalVelocity = -2f;
-				}
-
-				if (_input.jump && _jumpTimeoutDelta <= 0.0f)
-				{
-					_verticalVelocity = Mathf.Sqrt(JumpHeight * -2f * Gravity);
-
-					if (_hasAnimator)
-					{
-						_animator.SetBool(_animIDJump, true);
-					}
 				}
 
 				if (_jumpTimeoutDelta >= 0.0f)
