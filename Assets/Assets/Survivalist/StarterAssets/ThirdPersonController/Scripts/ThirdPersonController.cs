@@ -89,7 +89,9 @@ namespace StarterAssets
 
 		private void Start()
 		{
-			_hasAnimator = TryGetComponent(out _animator);
+			// El Animator está en un hijo (SK_Military_Survivalist), no en el root.
+			_animator = GetComponentInChildren<Animator>();
+			_hasAnimator = _animator != null;
 			_controller = GetComponent<CharacterController>();
 			_input = GetComponent<StarterAssetsInputs>();
 
@@ -101,7 +103,8 @@ namespace StarterAssets
 
 		private void Update()
 		{
-			_hasAnimator = TryGetComponent(out _animator);
+			// No buscamos el Animator cada frame (costoso). Solo verificamos que sigue válido.
+			if (_animator == null) { _animator = GetComponentInChildren<Animator>(); _hasAnimator = _animator != null; }
 
 			JumpAndGravity();
 			GroundedCheck();
