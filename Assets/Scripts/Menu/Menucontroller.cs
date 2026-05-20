@@ -60,12 +60,12 @@ public class MenuController : MonoBehaviour
     // ────────────────────────────────────────────────
     public void OnClickSalir()
     {
-#if UNITY_EDITOR
-        // En el editor detiene el Play Mode
-        UnityEditor.EditorApplication.isPlaying = false;
-#else
-        // En la build real cierra la aplicación
-        Application.Quit();
-#endif
+        #if UNITY_EDITOR
+                // En el editor detiene el Play Mode
+                UnityEditor.EditorApplication.isPlaying = false;
+        #else
+                // En la build real cierra la aplicación
+                Application.Quit();
+        #endif
     }
 }

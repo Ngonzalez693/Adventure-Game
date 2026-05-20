@@ -73,15 +73,12 @@ public void OnLook(InputValue value)
 
 #if !UNITY_IOS || !UNITY_ANDROID
 
-		private void OnApplicationFocus(bool hasFocus)
-		{
-			SetCursorState(cursorLocked);
-		}
-
-		private void SetCursorState(bool newState)
-		{
-			Cursor.lockState = newState ? CursorLockMode.Locked : CursorLockMode.None;
-		}
+		// OnApplicationFocus eliminado: el cursor lo gestionan
+		// ThirdPersonCameraController (ESC / clic izquierdo) y
+		// PuzzleManager (abrir / cerrar puzzle).
+		// Mantenerlo aquí causaba que se re-bloqueara el cursor
+		// cada vez que Unity cambiaba el foco de ventana, impidiendo
+		// usar los paneles de puzzle con el ratón.
 
 #endif
 
