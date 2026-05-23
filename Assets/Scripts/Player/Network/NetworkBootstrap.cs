@@ -50,5 +50,11 @@ public class NetworkBootstrap : MonoBehaviour
         // Esto indica que Netcode debe crear automáticamente
         // el prefab del jugador para el cliente que se conectó
         response.CreatePlayerObject = true;
+
+        // NOTA: No asignamos response.Position aquí porque cuando el HOST
+        // inicia, este callback se ejecuta ANTES de que la escena Lobby
+        // se cargue, por lo que NetworkPlayerSpawner.Instance es null.
+        // La posición se asigna en NetworkCharacterMotor.OnNetworkSpawn,
+        // que se ejecuta después de la carga de escena.
     }
 }
