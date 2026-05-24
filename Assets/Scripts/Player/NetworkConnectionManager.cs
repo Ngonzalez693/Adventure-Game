@@ -111,6 +111,9 @@ public class NetworkConnectionManager : MonoBehaviour
 
         _discovery?.Stop();
 
+        // Limpiar el mapeo de slots para que la próxima partida empiece limpio.
+        NetworkPlayerSpawner.ResetSlots();
+
         SceneManager.LoadScene(menuSceneName);
     }
 

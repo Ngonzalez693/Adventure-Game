@@ -956,13 +956,13 @@ GameObject:
   - component: {fileID: 9118809667409456534}
   - component: {fileID: 667772869295367900}
   - component: {fileID: 7079932334370702129}
-  - component: {fileID: 5018912527869117620}
   - component: {fileID: 7379050838828019105}
+  - component: {fileID: 5018912527869117620}
   - component: {fileID: 7235029493210180400}
   - component: {fileID: 5584126830991855484}
   - component: {fileID: 4144127064688463128}
   - component: {fileID: -2801320507829994817}
-  - component: {fileID: -2166430616378838833}
+  - component: {fileID: 7522261473943184506}
   m_Layer: 8
   m_Name: Player1
   m_TagString: Player
@@ -1045,6 +1045,7 @@ MonoBehaviour:
   CameraAngleOverride: 0
   LockCameraPosition: 0
   TurnDuration: 0.3
+  TurnSpeed: 120
   networkCameraOverride: {fileID: 0}
 --- !u!114 &9118809667409456534
 MonoBehaviour:
@@ -1180,21 +1181,6 @@ MonoBehaviour:
   m_DefaultActionMap: Player
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
---- !u!114 &5018912527869117620
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 989855982501635159}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bf8e0206a4d184a4ca39aeee77a9e6a6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NewMonoBehaviourScript
-  interactionRange: 2.5
-  interactionPrompt: {fileID: 0}
-  promptText: {fileID: 0}
 --- !u!114 &7379050838828019105
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1220,6 +1206,22 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
+--- !u!114 &5018912527869117620
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 989855982501635159}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf8e0206a4d184a4ca39aeee77a9e6a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NewMonoBehaviourScript
+  ShowTopMostFoldoutHeaderGroup: 1
+  interactionRange: 2.5
+  interactionPrompt: {fileID: 0}
+  promptText: {fileID: 0}
 --- !u!114 &7235029493210180400
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1305,14 +1307,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NetworkCameraAssigner
   ShowTopMostFoldoutHeaderGroup: 1
---- !u!114 &-2166430616378838833
+  waitTimeout: 5
+--- !u!114 &7522261473943184506
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 989855982501635159}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e8d0727d5ae3244e3b569694d3912374, type: 3}
   m_Name: 

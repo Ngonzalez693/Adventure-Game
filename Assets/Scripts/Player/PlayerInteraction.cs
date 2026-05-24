@@ -2,6 +2,7 @@
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 using TMPro;
 
 // Detecta objetos interactuables cercanos y muestra un prompt en pantalla.
@@ -31,6 +32,25 @@ public class PlayerInteraction : NetworkBehaviour
             return;
         }
 
+        ResolveUiReferences();
+
+        // Re-resolver la UI al cambiar de escena (Lobby → GameMap, etc.).
+        // El player object persiste entre escenas pero el Canvas no.
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (!IsOwner) return;
+        // Invalidamos referencias viejas y forzamos re-búsqueda
+        _uiResolved = false;
+        interactionPrompt = null;
+        promptText = null;
         ResolveUiReferences();
     }
 

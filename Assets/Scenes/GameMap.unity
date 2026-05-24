@@ -5464,11 +5464,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 219794115}
-  - component: {fileID: 219794114}
   - component: {fileID: 219794113}
-  - component: {fileID: 219794116}
   m_Layer: 0
-  m_Name: Managers
+  m_Name: PuzzleManagers
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5488,19 +5486,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PuzzleManager
   numberPuzzlePanel: {fileID: 1541451599}
   numberPuzzleUI: {fileID: 1541451604}
---- !u!114 &219794114
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 219794112}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2febf77af617da34c9c7353884d35ac5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  playerMovementScript: {fileID: 0}
 --- !u!4 &219794115
 Transform:
   m_ObjectHideFlags: 0
@@ -5516,20 +5501,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &219794116
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 219794112}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 42d55fe3e10536b4b8f5401527447a79, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UiInGame
-  nameEscenaMenu: MenuScene
-  optionsPanel: {fileID: 1905140041}
 --- !u!1001 &221330035
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9582,7 +9553,7 @@ Transform:
   m_GameObject: {fileID: 382366637}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.36413, y: 0.01, z: 1.5958}
+  m_LocalPosition: {x: -1.36413, y: 0.88, z: 1.5958}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -9858,140 +9829,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6765625050716975904, guid: 179f5856ad10c4742ba3e199eb4e7453, type: 3}
   m_PrefabInstance: {fileID: 682902088}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &401945619
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 401945620}
-  - component: {fileID: 401945624}
-  - component: {fileID: 401945623}
-  - component: {fileID: 401945622}
-  - component: {fileID: 401945621}
-  m_Layer: 0
-  m_Name: Network Manager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &401945620
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 401945619}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.36413, y: 0.01, z: 1.5958}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &401945621
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 401945619}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6411c0941db223b4a92a5890404c7132, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Net.NetworkStartUI
---- !u!114 &401945622
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 401945619}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fb75ab6560eea5940ad154cf64b27c1b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NetworkBootstrap
-  maxPlayers: 4
---- !u!114 &401945623
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 401945619}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6960e84d07fb87f47956e7a81d71c4e6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.Transports.UTP.UnityTransport
-  m_ProtocolType: 0
-  m_UseWebSockets: 0
-  m_UseEncryption: 0
-  m_MaxPacketQueueSize: 128
-  m_MaxPayloadSize: 6144
-  m_HeartbeatTimeoutMS: 500
-  m_ConnectTimeoutMS: 1000
-  m_MaxConnectAttempts: 60
-  m_DisconnectTimeoutMS: 30000
-  ConnectionData:
-    Address: 127.0.0.1
-    Port: 7777
-    WebSocketPath: /
-    ServerListenAddress: 127.0.0.1
-    ClientBindPort: 0
-  DebugSimulator:
-    PacketDelayMS: 0
-    PacketJitterMS: 0
-    PacketDropRate: 0
---- !u!114 &401945624
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 401945619}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 593a2fe42fa9d37498c96f9a383b6521, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkManager
-  NetworkManagerExpanded: 0
-  NetworkConfig:
-    ProtocolVersion: 0
-    NetworkTransport: {fileID: 401945623}
-    PlayerPrefab: {fileID: 989855982501635159, guid: 4a442b77ce9ee9b4291be3606714c312, type: 3}
-    Prefabs:
-      NetworkPrefabsLists:
-      - {fileID: 11400000, guid: 51e27284cec133245b7ef8eed9028b5a, type: 2}
-    TickRate: 30
-    ClientConnectionBufferTimeout: 10
-    ConnectionApproval: 0
-    ConnectionData: 
-    EnableTimeResync: 0
-    TimeResyncInterval: 30
-    EnsureNetworkVariableLengthSafety: 0
-    EnableSceneManagement: 1
-    ForceSamePrefabs: 1
-    RecycleNetworkIds: 1
-    NetworkIdRecycleDelay: 120
-    RpcHashSize: 0
-    LoadSceneTimeOut: 120
-    SpawnTimeout: 10
-    EnableNetworkLogs: 1
-    NetworkTopology: 0
-    UseCMBService: 0
-    AutoSpawnPlayerPrefabClientSide: 1
-    NetworkMessageMetrics: 1
-    NetworkProfilingMetrics: 1
-    OldPrefabList: []
-  RunInBackground: 1
-  LogLevel: 1
 --- !u!1 &402852920 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1707905958164905267, guid: ac783e30f8f95ec44883e3b79f6f4d34, type: 3}
@@ -21703,7 +21540,7 @@ GameObject:
   m_Component:
   - component: {fileID: 990097348}
   m_Layer: 0
-  m_Name: P2
+  m_Name: SpawnPlayer2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -21718,7 +21555,7 @@ Transform:
   m_GameObject: {fileID: 990097347}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.5, y: 0, z: 1.74}
+  m_LocalPosition: {x: 1.42, y: -0.592, z: 53.86}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -21850,7 +21687,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1012784950}
   m_Layer: 0
-  m_Name: P3
+  m_Name: SpawnPlayer3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -21865,7 +21702,7 @@ Transform:
   m_GameObject: {fileID: 1012784949}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.76, y: 0, z: 1.82}
+  m_LocalPosition: {x: 51.42, y: -0.592, z: 2.63}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -29206,6 +29043,7 @@ GameObject:
   - component: {fileID: 1324419182}
   - component: {fileID: 1324419181}
   - component: {fileID: 1324419180}
+  - component: {fileID: 1324419183}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -29297,6 +29135,20 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
+--- !u!114 &1324419183
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1324419178}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42d55fe3e10536b4b8f5401527447a79, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UiInGame
+  nameEscenaMenu: MenuScene
+  optionsPanel: {fileID: 1905140041}
 --- !u!1001 &1332446402
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -33332,7 +33184,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 219794116}
+      - m_Target: {fileID: 1324419183}
         m_TargetAssemblyTypeName: UiInGame, Assembly-CSharp
         m_MethodName: OnClickCloseOptions
         m_Mode: 1
@@ -35596,7 +35448,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1547033567}
   m_Layer: 0
-  m_Name: P4
+  m_Name: SpawnPlayer4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -35611,7 +35463,7 @@ Transform:
   m_GameObject: {fileID: 1547033566}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 3.07, y: 0, z: 4.26}
+  m_LocalPosition: {x: 51.33, y: -0.592, z: 51.56}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -45945,7 +45797,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 219794116}
+      - m_Target: {fileID: 1324419183}
         m_TargetAssemblyTypeName: UiInGame, Assembly-CSharp
         m_MethodName: OnClickExit
         m_Mode: 1
@@ -50052,7 +49904,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 219794116}
+      - m_Target: {fileID: 1324419183}
         m_TargetAssemblyTypeName: UiInGame, Assembly-CSharp
         m_MethodName: OnClickExitToMenu
         m_Mode: 1
@@ -50548,7 +50400,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2115105814}
   m_Layer: 0
-  m_Name: P1
+  m_Name: SpawnPlayer1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -50563,7 +50415,7 @@ Transform:
   m_GameObject: {fileID: 2115105813}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.7, y: 0.0050029256, z: 3.8171012}
+  m_LocalPosition: {x: 1.42, y: -0.592, z: 3.095}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -51031,7 +50883,6 @@ Transform:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 401945620}
   - {fileID: 201861924}
   - {fileID: 382366638}
   - {fileID: 1736023840}

@@ -1,6 +1,7 @@
 using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 // Componente del prefab del jugador.
 // Al spawnear el jugador local (owner), busca el sistema de cámara
@@ -25,6 +26,22 @@ public class NetworkCameraAssigner : NetworkBehaviour
 
         // Iniciamos una corrutina porque, al spawnear el host antes de cargar
         // el Lobby, la cámara todavía no existe. Esperamos hasta que aparezca.
+        StartCoroutine(AssignCameraWhenReady());
+
+        // Re-asignar la cámara cada vez que se carga una nueva escena
+        // (Lobby → GameMap, etc.). El player object persiste entre escenas,
+        // pero la cámara y CameraRoot son distintos en cada una.
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (!IsOwner) return;
         StartCoroutine(AssignCameraWhenReady());
     }
 
