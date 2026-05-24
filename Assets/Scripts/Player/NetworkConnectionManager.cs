@@ -1,106 +1,116 @@
-using System.Threading.Tasks;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
-using Unity.Networking.Transport.Relay;
-using Unity.Services.Authentication;
-using Unity.Services.Core;
-using Unity.Services.Relay;
-using Unity.Services.Relay.Models;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using TMPro;
 
+// Gestor de conexión LAN sin códigos de unión.
+// HOST: inicia el servidor y se anuncia con broadcast UDP en la red local.
+// CLIENT: escucha broadcasts hasta encontrar un host y se conecta automáticamente.
+[RequireComponent(typeof(LanDiscovery))]
 public class NetworkConnectionManager : MonoBehaviour
 {
     public static NetworkConnectionManager Instance;
 
     [Header("UI")]
     public GameObject menuPanel;
-    public TMP_InputField joinCodeInput;
-    public TextMeshProUGUI joinCodeDisplay;
     public TextMeshProUGUI statusText;
 
-    private string joinCode;
+    [Header("Escenas")]
+    [Tooltip("Nombre exacto de la escena Lobby (debe estar en Build Settings).")]
+    public string lobbySceneName = "Lobby";
 
-    void Awake()
-    {
-        if (Instance == null) Instance = this;
-        else Destroy(gameObject);
-    }
+    [Header("Red")]
+    [Tooltip("Puerto del juego (UnityTransport). Debe ser el mismo en host y cliente.")]
+    public ushort gamePort = 7777;
 
-    async void Start()
-    {
-        await InitializeServices();
-    }
+    private LanDiscovery _discovery;
 
-    async Task InitializeServices()
+    private void Awake()
     {
-        try
+        if (Instance == null)
         {
-            await UnityServices.InitializeAsync();
-            await AuthenticationService.Instance.SignInAnonymouslyAsync();
-            statusText.text = "Conectado a los servicios ✓";
-            Debug.Log("Autenticado: " + AuthenticationService.Instance.PlayerId);
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
         }
-        catch (System.Exception e)
+        else
         {
-            statusText.text = "Error al conectar";
-            Debug.LogError("Error inicializando servicios: " + e.Message);
+            Destroy(gameObject);
+            return;
         }
+
+        _discovery = GetComponent<LanDiscovery>();
     }
 
-    // El jugador 1 crea la sala
-    public async void CrearSala()
+    // ────────────────────────────────────────────────
+    //  BOTÓN HOST: crea la sala y empieza a anunciarse en la LAN
+    // ────────────────────────────────────────────────
+    public void CrearSala()
     {
-        try
+        if (statusText) statusText.text = "Creando sala...";
+
+        var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
+
+        // 0.0.0.0 = escuchar en todas las interfaces de red disponibles.
+        transport.SetConnectionData("0.0.0.0", gamePort, "0.0.0.0");
+
+        bool started = NetworkManager.Singleton.StartHost();
+        if (!started)
         {
-            statusText.text = "Creando sala...";
+            if (statusText) statusText.text = "Error al iniciar Host";
+            return;
+        }
 
-            // Máximo 4 jugadores
-            Allocation allocation = await RelayService.Instance.CreateAllocationAsync(4);
-            joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
+        // Anunciarse en la LAN para que los clientes nos encuentren
+        _discovery.StartBroadcasting(gamePort);
 
-            // Mostrar código para compartir
-            joinCodeDisplay.text = $"Código: {joinCode}";
-            statusText.text = "¡Sala creada! Comparte el código";
+        if (menuPanel) menuPanel.SetActive(false);
+        if (statusText) statusText.text = "Esperando jugadores...";
 
-            // Configurar transporte
+        Debug.Log("Host iniciado, anunciando en la LAN.");
+
+        // Cargar Lobby usando el SceneManager de Netcode
+        // para que los clientes que se unan vayan automáticamente al Lobby.
+        NetworkManager.Singleton.SceneManager.LoadScene(
+            lobbySceneName,
+            LoadSceneMode.Single);
+    }
+
+    // ────────────────────────────────────────────────
+    //  BOTÓN CLIENT: busca un host en la LAN y se conecta
+    // ────────────────────────────────────────────────
+    public void UnirseASala()
+    {
+        if (statusText) statusText.text = "Buscando partida en la LAN...";
+
+        // Cuando el discovery encuentre un host, conectarse a esa IP
+        _discovery.OnHostFound = (ip, port) =>
+        {
+            if (statusText) statusText.text = $"Host encontrado ({ip}). Conectando...";
+
             var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
-            transport.SetRelayServerData(new RelayServerData(allocation, "udp"));
+            transport.SetConnectionData(ip, port);
 
-            NetworkManager.Singleton.StartHost();
-            menuPanel.SetActive(false);
+            bool started = NetworkManager.Singleton.StartClient();
+            if (!started)
+            {
+                if (statusText) statusText.text = "Error al conectar";
+                return;
+            }
 
-            Debug.Log("Host iniciado con código: " + joinCode);
-        }
-        catch (System.Exception e)
-        {
-            statusText.text = "Error creando sala";
-            Debug.LogError(e.Message);
-        }
+            if (menuPanel) menuPanel.SetActive(false);
+            // No hace falta cargar la escena manualmente:
+            // Netcode sincroniza al cliente con la escena del host.
+        };
+
+        _discovery.StartListening();
     }
 
-    // Los demás jugadores se unen con el código
-    public async void UnirseASala()
+    // Botón para cancelar la búsqueda (opcional)
+    public void CancelarBusqueda()
     {
-        try
-        {
-            string codigo = joinCodeInput.text.Trim().ToUpper();
-            statusText.text = "Uniéndose a la sala...";
-
-            JoinAllocation joinAllocation = await RelayService.Instance.JoinAllocationAsync(codigo);
-
-            var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
-            transport.SetRelayServerData(new RelayServerData(joinAllocation, "udp"));
-
-            NetworkManager.Singleton.StartClient();
-            menuPanel.SetActive(false);
-
-            statusText.text = "¡Conectado!";
-        }
-        catch (System.Exception e)
-        {
-            statusText.text = "Código incorrecto";
-            Debug.LogError(e.Message);
-        }
+        _discovery.Stop();
+        _discovery.OnHostFound = null;
+        if (statusText) statusText.text = "Búsqueda cancelada";
     }
 }

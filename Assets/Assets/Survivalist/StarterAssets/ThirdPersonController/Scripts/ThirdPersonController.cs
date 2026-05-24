@@ -61,6 +61,10 @@ namespace StarterAssets
 		private bool _isTurning;        // true mientras el giro animado está en curso
 		public float TurnDuration = 0.3f; // segundos que dura la animación del giro
 
+		[Header("Tank Controls")]
+		[Tooltip("Velocidad de giro al presionar A/D (grados por segundo).")]
+		public float TurnSpeed = 120f;
+
 		// animation IDs
 		private int _animIDSpeed;
 		private int _animIDGrounded;
@@ -147,23 +151,35 @@ namespace StarterAssets
 				StartCoroutine(SmoothTurn180());
 			_sWasHeld = sHeld;
 
-			// Anulamos el componente hacia atrás: S ya no camina, solo gira.
-			// También bloqueamos movimiento mientras el giro está animándose.
-			if (_input.move.y < 0f || _isTurning)
-				_input.move = new Vector2(0f, 0f);
+			// Bloqueamos input mientras el giro de 180° está animándose
+			float horizontalInput = _isTurning ? 0f : _input.move.x;     // A / D
+			float forwardInput    = (_isTurning || _input.move.y < 0f)   // W (S bloqueada,
+				? 0f : _input.move.y;                                    //  S solo gira)
 
-			float targetSpeed = _input.sprint ? SprintSpeed : MoveSpeed;
-
-			if (_input.move == Vector2.zero) targetSpeed = 0.0f;
-
-			float currentHorizontalSpeed = new Vector3(_controller.velocity.x, 0.0f, _controller.velocity.z).magnitude;
-
-			float speedOffset = 0.1f;
-			float inputMagnitude = _input.analogMovement ? _input.move.magnitude : 1f;
-
-			if (currentHorizontalSpeed < targetSpeed - speedOffset || currentHorizontalSpeed > targetSpeed + speedOffset)
+			// ── A / D = rotación en el sitio (estilo tank controls) ───────────
+			// Aplicamos rotación directamente al transform en grados/segundo.
+			if (Mathf.Abs(horizontalInput) > _threshold)
 			{
-				_speed = Mathf.Lerp(currentHorizontalSpeed, targetSpeed * inputMagnitude, Time.deltaTime * SpeedChangeRate);
+				float deltaYaw = horizontalInput * TurnSpeed * Time.deltaTime;
+				transform.Rotate(0f, deltaYaw, 0f);
+			}
+			// Sincronizamos _targetRotation con la rotación actual para que
+			// la animación de giro 180° y cualquier otro código sigan coherentes.
+			_targetRotation = transform.eulerAngles.y;
+
+			// ── W = avance hacia adelante en la dirección que mira el jugador ─
+			float targetSpeed = _input.sprint ? SprintSpeed : MoveSpeed;
+			if (forwardInput <= _threshold) targetSpeed = 0f;
+
+			float currentHorizontalSpeed = new Vector3(_controller.velocity.x, 0f, _controller.velocity.z).magnitude;
+			float speedOffset = 0.1f;
+			float inputMagnitude = 1f;
+
+			if (currentHorizontalSpeed < targetSpeed - speedOffset ||
+				currentHorizontalSpeed > targetSpeed + speedOffset)
+			{
+				_speed = Mathf.Lerp(currentHorizontalSpeed, targetSpeed * inputMagnitude,
+									Time.deltaTime * SpeedChangeRate);
 				_speed = Mathf.Round(_speed * 1000f) / 1000f;
 			}
 			else
@@ -171,26 +187,14 @@ namespace StarterAssets
 				_speed = targetSpeed;
 			}
 
-			_animationBlend = Mathf.Lerp(_animationBlend, targetSpeed, Time.deltaTime * SpeedChangeRate);
+			_animationBlend = Mathf.Lerp(_animationBlend, targetSpeed,
+										 Time.deltaTime * SpeedChangeRate);
 
-			Vector3 inputDirection = new Vector3(_input.move.x, 0.0f, _input.move.y).normalized;
-
-			if (_input.move != Vector2.zero)
-			{
-				// Usa networkCameraOverride en servidor (sin MainCamera); cámara real en cliente
-				Transform camTransform = networkCameraOverride != null
-					? networkCameraOverride
-					: _mainCamera != null ? _mainCamera.transform : null;
-				float camY = camTransform != null ? camTransform.eulerAngles.y : 0f;
-
-				_targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg + camY;
-				float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, _targetRotation, ref _rotationVelocity, RotationSmoothTime);
-				transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
-			}
-
-			Vector3 targetDirection = Quaternion.Euler(0.0f, _targetRotation, 0.0f) * Vector3.forward;
-
-			_controller.Move(targetDirection.normalized * (_speed * Time.deltaTime) + new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime);
+			// Movimiento siempre en la dirección "forward" del personaje
+			// (no de la cámara), porque ahora es tank-style.
+			Vector3 forwardMove  = transform.forward * (_speed * Time.deltaTime);
+			Vector3 verticalMove = new Vector3(0f, _verticalVelocity, 0f) * Time.deltaTime;
+			_controller.Move(forwardMove + verticalMove);
 
 			if (_hasAnimator)
 			{
