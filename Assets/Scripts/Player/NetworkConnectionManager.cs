@@ -28,16 +28,18 @@ public class NetworkConnectionManager : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance == null)
+        // Si ya existe un Instance previo (del flujo anterior), lo destruimos
+        // y nosotros (instancia de la escena nueva) tomamos su lugar.
+        // Esto es importante cuando el usuario vuelve al menú desde el Lobby:
+        // los botones de la nueva MenuScene están conectados a ESTA instancia
+        // en su Inspector, no a la antigua persistente.
+        if (Instance != null && Instance != this)
         {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
+            Destroy(Instance.gameObject);
         }
-        else
-        {
-            Destroy(gameObject);
-            return;
-        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
 
         _discovery = GetComponent<LanDiscovery>();
     }

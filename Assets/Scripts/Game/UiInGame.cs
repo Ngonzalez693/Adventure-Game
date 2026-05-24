@@ -1,3 +1,4 @@
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -31,7 +32,13 @@ public class UiInGame : MonoBehaviour
             return;
         }
 
-        optionsPanel.SetActive(!optionsPanel.activeSelf);
+        bool open = !optionsPanel.activeSelf;
+        optionsPanel.SetActive(open);
+
+        // Cuando se abre el panel, liberamos y mostramos el cursor para que
+        // se puedan clickear los botones. Al cerrarlo, lo volvemos a bloquear.
+        Cursor.lockState = open ? CursorLockMode.None : CursorLockMode.Locked;
+        Cursor.visible   = open;
     }
 
     // Auxiliary method to close the options panel from a "Back" button inside the panel
@@ -39,6 +46,10 @@ public class UiInGame : MonoBehaviour
     {
         if (optionsPanel != null)
             optionsPanel.SetActive(false);
+
+        // Restaurar el cursor bloqueado al estilo de juego
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible   = false;
     }
 
     // ────────────────────────────────────────────────
@@ -46,6 +57,16 @@ public class UiInGame : MonoBehaviour
     // ────────────────────────────────────────────────
     public void OnClickExitToMenu()
     {
+        // Si hay conexión de red activa, la cerramos primero.
+        // Esto desconecta a los clientes (si somos host) o nos desconecta a
+        // nosotros (si somos cliente). Sin esto, Netcode queda corriendo en
+        // background y la próxima sesión empieza en estado inconsistente.
+        if (NetworkManager.Singleton != null &&
+            (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsClient))
+        {
+            NetworkManager.Singleton.Shutdown();
+        }
+
         SceneManager.LoadScene(nameEscenaMenu);
     }
 

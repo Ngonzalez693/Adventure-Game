@@ -48,10 +48,15 @@ public class PlayerInteraction : NetworkBehaviour
         if (promptText == null && interactionPrompt != null)
             promptText = interactionPrompt.GetComponentInChildren<TextMeshProUGUI>(true);
 
+        // Solo marcamos como "resuelto" si REALMENTE encontramos la UI.
+        // Si no, seguimos intentando cada frame — esto cubre el caso de
+        // arrancar como Host desde MenuScene (el player spawnea antes de
+        // que la escena Lobby cargue y su InteractionPrompt exista).
         if (interactionPrompt != null)
+        {
             interactionPrompt.SetActive(false);
-
-        _uiResolved = true;
+            _uiResolved = true;
+        }
     }
 
     void Update()
