@@ -24,7 +24,12 @@ public class NetworkConnectionManager : MonoBehaviour
     [Tooltip("Puerto del juego (UnityTransport). Debe ser el mismo en host y cliente.")]
     public ushort gamePort = 7777;
 
+    [Header("Escena al ser desconectado")]
+    [Tooltip("Escena a la que se vuelve si perdemos al host (o cualquier desconexión).")]
+    public string menuSceneName = "MenuScene";
+
     private LanDiscovery _discovery;
+    private bool _subscribedToNetworkEvents;
 
     private void Awake()
     {
@@ -42,6 +47,71 @@ public class NetworkConnectionManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         _discovery = GetComponent<LanDiscovery>();
+
+        SubscribeToNetworkEvents();
+    }
+
+    private void SubscribeToNetworkEvents()
+    {
+        if (_subscribedToNetworkEvents) return;
+        if (NetworkManager.Singleton == null) return;
+
+        NetworkManager.Singleton.OnClientStopped += OnClientStopped;
+        NetworkManager.Singleton.OnServerStopped += OnServerStopped;
+        _subscribedToNetworkEvents = true;
+    }
+
+    private void OnDestroy()
+    {
+        if (NetworkManager.Singleton != null)
+        {
+            NetworkManager.Singleton.OnClientStopped -= OnClientStopped;
+            NetworkManager.Singleton.OnServerStopped -= OnServerStopped;
+        }
+    }
+
+    // ────────────────────────────────────────────────
+    //  Eventos de red — detectar pérdida de host
+    // ────────────────────────────────────────────────
+    // Se dispara cuando NUESTRO cliente se detiene. Si fuimos host, ya manejamos
+    // el regreso al menú en UiInGame, así que ignoramos ese caso aquí. Si fuimos
+    // un cliente puro, significa que el host se cayó (o nos desconectamos) y
+    // debemos volver al menú forzadamente.
+    private void OnClientStopped(bool wasHost)
+    {
+        if (wasHost) return;
+        ReturnToMenuFromDisconnect("Conexión perdida con el host.");
+    }
+
+    // Cuando el server se detiene (host hizo Shutdown). En el host fuerza la
+    // limpieza incluso si UiInGame no lo hizo (ej: cierre desde otra vía).
+    private void OnServerStopped(bool wasHost)
+    {
+        // Solo actuamos si NO estamos ya yendo al menú.
+        // Si el host pulsó "Volver al menú" en UiInGame, ya se está cargando.
+        if (SceneManager.GetActiveScene().name == menuSceneName) return;
+
+        // El host puede limpiar su propio regreso desde UiInGame, pero si por
+        // algún motivo nos quedamos sin server sin pasar por ese flujo,
+        // garantizamos volver al menú.
+        ReturnToMenuFromDisconnect(null);
+    }
+
+    private void ReturnToMenuFromDisconnect(string reason)
+    {
+        if (!string.IsNullOrEmpty(reason))
+            Debug.Log($"[NetworkConnectionManager] {reason}");
+
+        // Asegurar que Netcode esté limpio
+        if (NetworkManager.Singleton != null &&
+            (NetworkManager.Singleton.IsClient || NetworkManager.Singleton.IsServer))
+        {
+            NetworkManager.Singleton.Shutdown();
+        }
+
+        _discovery?.Stop();
+
+        SceneManager.LoadScene(menuSceneName);
     }
 
     // ────────────────────────────────────────────────

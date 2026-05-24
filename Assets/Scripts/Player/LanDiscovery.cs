@@ -65,7 +65,17 @@ public class LanDiscovery : MonoBehaviour
 
         try
         {
-            _listener = new UdpClient(DiscoveryPort);
+            // Creamos el socket SIN bindear y habilitamos ReuseAddress antes
+            // del bind. Esto permite que varias instancias en la misma máquina
+            // (ej: Multiplayer Play Mode, varios .exe locales) compartan el
+            // mismo puerto UDP para escuchar broadcasts. Sin esto Windows da
+            // "Solo se permite un uso de cada dirección de socket".
+            _listener = new UdpClient();
+            _listener.Client.SetSocketOption(
+                SocketOptionLevel.Socket,
+                SocketOptionName.ReuseAddress,
+                true);
+            _listener.Client.Bind(new IPEndPoint(IPAddress.Any, DiscoveryPort));
         }
         catch (SocketException e)
         {

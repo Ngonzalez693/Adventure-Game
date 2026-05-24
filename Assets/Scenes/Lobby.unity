@@ -186,9 +186,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 4652372681009794825, guid: 706810835ac00d944b34a4fff52b0897, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1075218884}
-    - targetCorrespondingSourceObject: {fileID: 4652372681009794825, guid: 706810835ac00d944b34a4fff52b0897, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1075218887}
   m_SourcePrefab: {fileID: 100100000, guid: 706810835ac00d944b34a4fff52b0897, type: 3}
 --- !u!4 &50662242 stripped
 Transform:
@@ -798,7 +795,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LobbyManager
   ShowTopMostFoldoutHeaderGroup: 1
-  requiredPlayers: 2
+  requiredPlayers: 4
   nextSceneName: GameMap
   PlayerCount:
     UpdateTraits:
@@ -1491,21 +1488,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.999998, y: 0.999998, z: 1.0000019}
   m_Center: {x: 0.000000014901161, y: 0.49999893, z: 0.00000011920929}
---- !u!114 &356820710
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 356820703}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 39685e9cad8342e4c99fc224fa317209, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::InteractableObject
-  objectName: Caja
-  puzzleType: 0
-  isCompleted: 0
 --- !u!4 &400839703 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6765625050716975904, guid: 179f5856ad10c4742ba3e199eb4e7453, type: 3}
@@ -1743,9 +1725,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 982558053661586392, guid: 18fe7aa82f835d44ca47998f257ab79d, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1505266469}
-    - targetCorrespondingSourceObject: {fileID: 982558053661586392, guid: 18fe7aa82f835d44ca47998f257ab79d, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1505266472}
   m_SourcePrefab: {fileID: 100100000, guid: 18fe7aa82f835d44ca47998f257ab79d, type: 3}
 --- !u!1001 &507167518
 PrefabInstance:
@@ -1814,9 +1793,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1707905958164905267, guid: ac783e30f8f95ec44883e3b79f6f4d34, type: 3}
       insertIndex: -1
       addedObject: {fileID: 356820707}
-    - targetCorrespondingSourceObject: {fileID: 1707905958164905267, guid: ac783e30f8f95ec44883e3b79f6f4d34, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 356820710}
   m_SourcePrefab: {fileID: 100100000, guid: ac783e30f8f95ec44883e3b79f6f4d34, type: 3}
 --- !u!1001 &544641351
 PrefabInstance:
@@ -2578,21 +2554,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.2205913, y: 0.61029583, z: 0.91544366}
   m_Center: {x: -0.000000029802322, y: 0.30514792, z: 0.000000044703484}
---- !u!114 &836413658
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 836413651}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 39685e9cad8342e4c99fc224fa317209, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::InteractableObject
-  objectName: Caja
-  puzzleType: 0
-  isCompleted: 0
 --- !u!1001 &848441902
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2997,21 +2958,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.0254588, y: 1.0254585, z: 2.050919}
   m_Center: {x: 0.0000015199184, y: 0.51272863, z: 0.0000019073486}
---- !u!114 &1071006603
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1071006596}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 39685e9cad8342e4c99fc224fa317209, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::InteractableObject
-  objectName: Caja
-  puzzleType: 0
-  isCompleted: 0
 --- !u!1 &1075218880 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4652372681009794825, guid: 706810835ac00d944b34a4fff52b0897, type: 3}
@@ -3043,21 +2989,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.7502224, y: 1.0856489, z: 1.7502216}
   m_Center: {x: -0.000000029802322, y: 0.5428242, z: -0.000000059604645}
---- !u!114 &1075218887
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1075218880}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 39685e9cad8342e4c99fc224fa317209, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::InteractableObject
-  objectName: Caja
-  puzzleType: 0
-  isCompleted: 0
 --- !u!1001 &1131843672
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4367,21 +4298,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.94439965, y: 0.44897246, z: 0.64684707}
   m_Center: {x: 0, y: 0.22448626, z: 0.00000004470348}
---- !u!114 &1505266472
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1505266465}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 39685e9cad8342e4c99fc224fa317209, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::InteractableObject
-  objectName: Caja
-  puzzleType: 0
-  isCompleted: 0
 --- !u!1001 &1555279767
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4449,9 +4365,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1707905958164905267, guid: ac783e30f8f95ec44883e3b79f6f4d34, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1634231618}
-    - targetCorrespondingSourceObject: {fileID: 1707905958164905267, guid: ac783e30f8f95ec44883e3b79f6f4d34, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1634231621}
   m_SourcePrefab: {fileID: 100100000, guid: ac783e30f8f95ec44883e3b79f6f4d34, type: 3}
 --- !u!1001 &1560463480
 PrefabInstance:
@@ -4520,9 +4433,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1245008610531885675, guid: c223ecaf75523874f8e0388ce417749e, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1071006600}
-    - targetCorrespondingSourceObject: {fileID: 1245008610531885675, guid: c223ecaf75523874f8e0388ce417749e, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1071006603}
   m_SourcePrefab: {fileID: 100100000, guid: c223ecaf75523874f8e0388ce417749e, type: 3}
 --- !u!1001 &1566888228
 PrefabInstance:
@@ -4769,21 +4679,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.999998, y: 0.999998, z: 1.0000019}
   m_Center: {x: 0.000000014901161, y: 0.49999893, z: 0.00000011920929}
---- !u!114 &1634231621
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1634231614}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 39685e9cad8342e4c99fc224fa317209, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::InteractableObject
-  objectName: Caja
-  puzzleType: 0
-  isCompleted: 0
 --- !u!1 &1651309855
 GameObject:
   m_ObjectHideFlags: 0
@@ -5812,9 +5707,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 4564968870612321650, guid: 399560bf59799aa448e0a64abec91512, type: 3}
       insertIndex: -1
       addedObject: {fileID: 836413655}
-    - targetCorrespondingSourceObject: {fileID: 4564968870612321650, guid: 399560bf59799aa448e0a64abec91512, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 836413658}
   m_SourcePrefab: {fileID: 100100000, guid: 399560bf59799aa448e0a64abec91512, type: 3}
 --- !u!1 &2091414538
 GameObject:
