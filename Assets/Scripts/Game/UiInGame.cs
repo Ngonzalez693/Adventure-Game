@@ -15,10 +15,18 @@ public class UiInGame : MonoBehaviour
     // ────────────────────────────────────────────────
     //  UPDATE — ESC toggles the options panel
     // ────────────────────────────────────────────────
+    // Guarda estática para evitar dobles toggles si por algún motivo hay
+    // más de un componente UiInGame escuchando la tecla P en el mismo frame.
+    private static int _lastPHandledFrame = -1;
+
     void Update()
     {
         if (Keyboard.current != null && Keyboard.current.pKey.wasPressedThisFrame)
+        {
+            if (Time.frameCount == _lastPHandledFrame) return;
+            _lastPHandledFrame = Time.frameCount;
             OnPressOptions();
+        }
     }
 
     // ────────────────────────────────────────────────
@@ -34,6 +42,9 @@ public class UiInGame : MonoBehaviour
 
         bool open = !optionsPanel.activeSelf;
         optionsPanel.SetActive(open);
+
+        Debug.Log($"[UiInGame] OptionsPanel '{optionsPanel.name}' (id={optionsPanel.GetInstanceID()}) " +
+                  $"→ active={optionsPanel.activeSelf}, activeInHierarchy={optionsPanel.activeInHierarchy}");
 
         // Cuando se abre el panel, liberamos y mostramos el cursor para que
         // se puedan clickear los botones. Al cerrarlo, lo volvemos a bloquear.

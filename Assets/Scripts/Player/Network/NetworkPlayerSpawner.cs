@@ -18,15 +18,21 @@ public class NetworkPlayerSpawner : NetworkBehaviour
     // Singleton para que NetworkCharacterMotor pueda pedir su spawn point
     public static NetworkPlayerSpawner Instance { get; private set; }
 
-    // Mapeo persistente clientId → slot. Se asigna en el servidor cuando un
+    // Mapeo persistente clientId → slot (SOLO SERVIDOR). Se asigna cuando un
     // cliente se conecta por primera vez y se mantiene aunque cambien las
     // escenas.
     private static readonly Dictionary<ulong, int> _slotByClientId = new();
     private static int _nextSlot;
 
+    // Mapeo sincronizado: índice = slot, valor = clientId. Lo escribe el
+    // servidor en OnNetworkSpawn y todos los clientes lo leen para saber qué
+    // slot tiene cada jugador.
+    private NetworkList<ulong> _clientBySlot;
+
     private void Awake()
     {
         Instance = this;
+        _clientBySlot = new NetworkList<ulong>();
     }
 
     public override void OnNetworkSpawn()
@@ -38,6 +44,9 @@ public class NetworkPlayerSpawner : NetworkBehaviour
             // Solo asignamos slot a los que aún no lo tengan.
             foreach (var id in NetworkManager.ConnectedClientsIds)
                 EnsureSlotForClient(id);
+
+            // Publicar el mapeo a todos los clientes
+            SyncSlotsToNetwork();
 
             NetworkManager.OnClientConnectedCallback += OnClientConnected;
             NetworkManager.OnClientDisconnectCallback += OnClientDisconnected;
@@ -108,13 +117,37 @@ public class NetworkPlayerSpawner : NetworkBehaviour
         if (Instance == this) Instance = null;
     }
 
-    private void OnClientConnected(ulong clientId)    => EnsureSlotForClient(clientId);
-    private void OnClientDisconnected(ulong clientId) => _slotByClientId.Remove(clientId);
+    private void OnClientConnected(ulong clientId)
+    {
+        EnsureSlotForClient(clientId);
+        SyncSlotsToNetwork();
+    }
+
+    private void OnClientDisconnected(ulong clientId)
+    {
+        _slotByClientId.Remove(clientId);
+        SyncSlotsToNetwork();
+    }
 
     private void EnsureSlotForClient(ulong clientId)
     {
         if (_slotByClientId.ContainsKey(clientId)) return;
         _slotByClientId[clientId] = _nextSlot++;
+    }
+
+    // SOLO SERVIDOR. Refresca la NetworkList con el mapeo slot → clientId
+    // para que todos los clientes lo puedan leer.
+    private void SyncSlotsToNetwork()
+    {
+        if (!IsServer || _clientBySlot == null) return;
+
+        // Ordenar por slot ascendente y construir la lista
+        var ordered = new List<KeyValuePair<ulong, int>>(_slotByClientId);
+        ordered.Sort((a, b) => a.Value.CompareTo(b.Value));
+
+        _clientBySlot.Clear();
+        foreach (var kvp in ordered)
+            _clientBySlot.Add(kvp.Key);
     }
 
     // Devuelve el spawn point asignado a este clientId.
@@ -132,12 +165,24 @@ public class NetworkPlayerSpawner : NetworkBehaviour
         return spawnPoints[slot];
     }
 
-    // Devuelve el slot (0..N-1) del cliente. Útil para asignar puzzles, mapas,
-    // visibilidad por capas, etc.
+    // Devuelve el slot (0..N-1) del cliente. Funciona tanto en servidor como
+    // en clientes (los clientes usan la NetworkList sincronizada; el servidor
+    // tiene la información autoritativa en el dict estático).
     public int GetSlotForClient(ulong clientId)
     {
-        EnsureSlotForClient(clientId);
-        return _slotByClientId[clientId];
+        if (IsServer)
+        {
+            EnsureSlotForClient(clientId);
+            return _slotByClientId[clientId];
+        }
+
+        // Cliente: buscar en la lista sincronizada por la red
+        if (_clientBySlot != null)
+        {
+            for (int i = 0; i < _clientBySlot.Count; i++)
+                if (_clientBySlot[i] == clientId) return i;
+        }
+        return -1; // todavía no se sincronizó
     }
 
     // Reset estático del mapeo de slots. Llamar al volver al menú si quieres

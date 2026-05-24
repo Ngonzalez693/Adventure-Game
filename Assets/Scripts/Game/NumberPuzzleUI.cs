@@ -29,9 +29,10 @@ public class NumberPuzzleUI : MonoBehaviour
          indice = 0;
         respuesta = new int[4];
 
-        // Usar código de red si existe, si no usar 1234 de prueba
+        // Obtener el código generado por el host. Es el mismo para todos
+        // los jugadores: lo derivan del orden de colores + dígitos asignados.
         if (PuzzleCodeManager.Instance != null)
-            solucion = PuzzleCodeManager.Instance.ObtenerCodigoAResolver();
+            solucion = PuzzleCodeManager.Instance.GetCorrectCode();
         else
             solucion = new int[] { 1, 2, 3, 4 };
 
@@ -132,6 +133,10 @@ public class NumberPuzzleUI : MonoBehaviour
 
     void Completar()
     {
+        // Notificar al servidor que este puzzle quedó resuelto.
+        if (PuzzleCodeManager.Instance != null)
+            PuzzleCodeManager.Instance.MarcarResueltoServerRpc();
+
         PuzzleManager.Instance.PuzzleCompletado();
     }
 }
