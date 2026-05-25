@@ -22,6 +22,17 @@ public class PuzzleAssignmentManager : NetworkBehaviour
     public NetworkVariable<int> PatternPuzzleSlot = new(-1,
         NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
+    // Slot del solucionador del puzzle de memoria (los 3 botones de colores)
+    public NetworkVariable<int> MemoryPuzzleSlot = new(-1,
+        NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
+    // Posición de memoria asignada a cada slot (0, 1, 2 = primero/segundo/tercero,
+    // o -1 si ese slot es el solucionador y no tiene secuencia que ver).
+    public NetworkVariable<int> Slot0MemoryPos = new(-1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    public NetworkVariable<int> Slot1MemoryPos = new(-1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    public NetworkVariable<int> Slot2MemoryPos = new(-1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    public NetworkVariable<int> Slot3MemoryPos = new(-1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
     // Slot donde se ubica la nota numérica de cada color (0..3)
     public NetworkVariable<int> RojoSlot     = new(-1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     public NetworkVariable<int> AzulSlot     = new(-1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
@@ -44,6 +55,7 @@ public class PuzzleAssignmentManager : NetworkBehaviour
         // Notificar a los map bindings cuando los valores se actualicen
         CodePuzzleSlot.OnValueChanged    += (_, _) => NotifyMapBindings();
         PatternPuzzleSlot.OnValueChanged += (_, _) => NotifyMapBindings();
+        MemoryPuzzleSlot.OnValueChanged  += (_, _) => NotifyMapBindings();
         RojoSlot.OnValueChanged          += (_, _) => NotifyMapBindings();
         AzulSlot.OnValueChanged          += (_, _) => NotifyMapBindings();
         VerdeSlot.OnValueChanged         += (_, _) => NotifyMapBindings();
@@ -66,7 +78,32 @@ public class PuzzleAssignmentManager : NetworkBehaviour
         int patternSlot = availablePattern[Random.Range(0, availablePattern.Count)];
         PatternPuzzleSlot.Value = patternSlot;
 
-        // 3) Distribuir las 4 notas numéricas entre los OTROS slots del puzzle de código
+        // 3) Slot del solucionador del puzzle de memoria
+        //    (debe ser distinto a los anteriores si es posible)
+        var availableMemory = new List<int>();
+        for (int i = 0; i < totalSlots; i++)
+            if (i != codeSlot && i != patternSlot) availableMemory.Add(i);
+        int memorySlot = availableMemory.Count > 0
+            ? availableMemory[Random.Range(0, availableMemory.Count)]
+            : Random.Range(0, totalSlots);
+        MemoryPuzzleSlot.Value = memorySlot;
+
+        // Asignar posiciones de memoria (0, 1, 2) a los 3 slots NO-solucionadores
+        var memoryHelpers = new List<int>();
+        for (int i = 0; i < totalSlots; i++)
+            if (i != memorySlot) memoryHelpers.Add(i);
+        Shuffle(memoryHelpers);
+
+        int[] memoryPosBySlot = { -1, -1, -1, -1 };
+        for (int i = 0; i < memoryHelpers.Count && i < 3; i++)
+            memoryPosBySlot[memoryHelpers[i]] = i;
+
+        Slot0MemoryPos.Value = memoryPosBySlot[0];
+        Slot1MemoryPos.Value = memoryPosBySlot[1];
+        Slot2MemoryPos.Value = memoryPosBySlot[2];
+        Slot3MemoryPos.Value = memoryPosBySlot[3];
+
+        // 4) Distribuir las 4 notas numéricas entre los OTROS slots del puzzle de código
         var otherSlotsForCode = new List<int>();
         for (int i = 0; i < totalSlots; i++)
             if (i != codeSlot) otherSlotsForCode.Add(i);
@@ -79,6 +116,9 @@ public class PuzzleAssignmentManager : NetworkBehaviour
 
         Debug.Log($"[PuzzleAssignmentManager] Asignación: " +
                   $"Code→Slot {CodePuzzleSlot.Value}, Pattern→Slot {PatternPuzzleSlot.Value}, " +
+                  $"Memory→Slot {MemoryPuzzleSlot.Value} " +
+                  $"(memoryPos: s0={Slot0MemoryPos.Value}, s1={Slot1MemoryPos.Value}, " +
+                  $"s2={Slot2MemoryPos.Value}, s3={Slot3MemoryPos.Value}), " +
                   $"Rojo→{RojoSlot.Value}, Azul→{AzulSlot.Value}, " +
                   $"Verde→{VerdeSlot.Value}, Amarillo→{AmarilloSlot.Value}");
     }

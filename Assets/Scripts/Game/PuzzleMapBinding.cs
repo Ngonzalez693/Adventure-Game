@@ -15,19 +15,28 @@ public class PuzzleMapBinding : MonoBehaviour
     public GameObject codeConsole;
 
     [Header("Puzzle de patrón")]
-    [Tooltip("Panel de luces (3 esferas LightIndicator). Activo solo en el mapa " +
-             "del solucionador del puzzle de patrón.")]
+    [Tooltip("Panel de luces. Activo solo en el mapa del solucionador del patrón.")]
     public GameObject patternLightPanel;
 
-    [Tooltip("Las 3 palancas binarias de este mapa. Activas para todos los slots " +
-             "EXCEPTO el solucionador del patrón. Tamaño esperado: 3.")]
+    [Tooltip("Las 3 palancas binarias de este mapa. Tamaño esperado: 3.")]
     public GameObject[] levers;
+
+    [Header("Puzzle de memoria")]
+    [Tooltip("Panel con los 3 botones de colores + display de progreso. " +
+             "Activo solo en el mapa del solucionador del puzzle de memoria.")]
+    public GameObject memoryButtonPanel;
+
+    [Tooltip("Consola que el ayudante usa para ver su secuencia. Activa en TODOS " +
+             "los mapas EXCEPTO el del solucionador del memoria.")]
+    public GameObject memorySequenceViewer;
 
     private void Start()
     {
         SetActiveSafe(codeConsole, false);
         SetActiveSafe(patternLightPanel, false);
         SetLeversActive(false);
+        SetActiveSafe(memoryButtonPanel, false);
+        SetActiveSafe(memorySequenceViewer, false);
 
         if (PuzzleAssignmentManager.Instance != null)
             ApplyAssignment();
@@ -38,16 +47,19 @@ public class PuzzleMapBinding : MonoBehaviour
         var mgr = PuzzleAssignmentManager.Instance;
         if (mgr == null) return;
 
-        // Puzzle de código: solo la consola en el mapa del solucionador
+        // Puzzle de código
         bool isCodeSolver = mgr.CodePuzzleSlot.Value == slotIndex;
         SetActiveSafe(codeConsole, isCodeSolver);
 
-        // Puzzle de patrón:
-        //  - El solucionador ve el panel de luces (no tiene palancas)
-        //  - Los demás tienen 3 palancas (no tienen luces)
+        // Puzzle de patrón
         bool isPatternSolver = mgr.PatternPuzzleSlot.Value == slotIndex;
         SetActiveSafe(patternLightPanel, isPatternSolver);
         SetLeversActive(!isPatternSolver);
+
+        // Puzzle de memoria
+        bool isMemorySolver = mgr.MemoryPuzzleSlot.Value == slotIndex;
+        SetActiveSafe(memoryButtonPanel, isMemorySolver);
+        SetActiveSafe(memorySequenceViewer, !isMemorySolver);
     }
 
     private void SetLeversActive(bool active)
