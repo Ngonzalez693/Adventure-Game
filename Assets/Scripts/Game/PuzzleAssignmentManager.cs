@@ -26,6 +26,10 @@ public class PuzzleAssignmentManager : NetworkBehaviour
     public NetworkVariable<int> MemoryPuzzleSlot = new(-1,
         NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
+    // Slot del solucionador del puzzle de presión (el manómetro)
+    public NetworkVariable<int> PressurePuzzleSlot = new(-1,
+        NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
     // Posición de memoria asignada a cada slot (0, 1, 2 = primero/segundo/tercero,
     // o -1 si ese slot es el solucionador y no tiene secuencia que ver).
     public NetworkVariable<int> Slot0MemoryPos = new(-1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
@@ -53,9 +57,10 @@ public class PuzzleAssignmentManager : NetworkBehaviour
             GenerarAsignacion();
 
         // Notificar a los map bindings cuando los valores se actualicen
-        CodePuzzleSlot.OnValueChanged    += (_, _) => NotifyMapBindings();
-        PatternPuzzleSlot.OnValueChanged += (_, _) => NotifyMapBindings();
-        MemoryPuzzleSlot.OnValueChanged  += (_, _) => NotifyMapBindings();
+        CodePuzzleSlot.OnValueChanged     += (_, _) => NotifyMapBindings();
+        PatternPuzzleSlot.OnValueChanged  += (_, _) => NotifyMapBindings();
+        MemoryPuzzleSlot.OnValueChanged   += (_, _) => NotifyMapBindings();
+        PressurePuzzleSlot.OnValueChanged += (_, _) => NotifyMapBindings();
         RojoSlot.OnValueChanged          += (_, _) => NotifyMapBindings();
         AzulSlot.OnValueChanged          += (_, _) => NotifyMapBindings();
         VerdeSlot.OnValueChanged         += (_, _) => NotifyMapBindings();
@@ -103,7 +108,19 @@ public class PuzzleAssignmentManager : NetworkBehaviour
         Slot2MemoryPos.Value = memoryPosBySlot[2];
         Slot3MemoryPos.Value = memoryPosBySlot[3];
 
-        // 4) Distribuir las 4 notas numéricas entre los OTROS slots del puzzle de código
+        // 4) Slot del solucionador del puzzle de presión
+        //    Idealmente distinto a los 3 anteriores → cada jugador tiene un rol
+        //    solver distinto. Si no hay suficientes slots, cae en uno cualquiera.
+        var availablePressure = new List<int>();
+        for (int i = 0; i < totalSlots; i++)
+            if (i != codeSlot && i != patternSlot && i != memorySlot)
+                availablePressure.Add(i);
+        int pressureSlot = availablePressure.Count > 0
+            ? availablePressure[Random.Range(0, availablePressure.Count)]
+            : Random.Range(0, totalSlots);
+        PressurePuzzleSlot.Value = pressureSlot;
+
+        // 5) Distribuir las 4 notas numéricas entre los OTROS slots del puzzle de código
         var otherSlotsForCode = new List<int>();
         for (int i = 0; i < totalSlots; i++)
             if (i != codeSlot) otherSlotsForCode.Add(i);
@@ -116,7 +133,7 @@ public class PuzzleAssignmentManager : NetworkBehaviour
 
         Debug.Log($"[PuzzleAssignmentManager] Asignación: " +
                   $"Code→Slot {CodePuzzleSlot.Value}, Pattern→Slot {PatternPuzzleSlot.Value}, " +
-                  $"Memory→Slot {MemoryPuzzleSlot.Value} " +
+                  $"Memory→Slot {MemoryPuzzleSlot.Value}, Pressure→Slot {PressurePuzzleSlot.Value} " +
                   $"(memoryPos: s0={Slot0MemoryPos.Value}, s1={Slot1MemoryPos.Value}, " +
                   $"s2={Slot2MemoryPos.Value}, s3={Slot3MemoryPos.Value}), " +
                   $"Rojo→{RojoSlot.Value}, Azul→{AzulSlot.Value}, " +

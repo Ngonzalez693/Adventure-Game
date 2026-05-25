@@ -30,6 +30,14 @@ public class PuzzleMapBinding : MonoBehaviour
              "los mapas EXCEPTO el del solucionador del memoria.")]
     public GameObject memorySequenceViewer;
 
+    [Header("Puzzle de presión")]
+    [Tooltip("Manómetro del puzzle de presión. Activo solo en el mapa del solucionador.")]
+    public GameObject pressureGauge;
+
+    [Tooltip("Las 2 válvulas de este mapa. Activas para TODOS los slots EXCEPTO " +
+             "el solucionador del puzzle de presión.")]
+    public GameObject[] valves;
+
     private void Start()
     {
         SetActiveSafe(codeConsole, false);
@@ -37,6 +45,8 @@ public class PuzzleMapBinding : MonoBehaviour
         SetLeversActive(false);
         SetActiveSafe(memoryButtonPanel, false);
         SetActiveSafe(memorySequenceViewer, false);
+        SetActiveSafe(pressureGauge, false);
+        SetValvesActive(false);
 
         if (PuzzleAssignmentManager.Instance != null)
             ApplyAssignment();
@@ -60,6 +70,11 @@ public class PuzzleMapBinding : MonoBehaviour
         bool isMemorySolver = mgr.MemoryPuzzleSlot.Value == slotIndex;
         SetActiveSafe(memoryButtonPanel, isMemorySolver);
         SetActiveSafe(memorySequenceViewer, !isMemorySolver);
+
+        // Puzzle de presión
+        bool isPressureSolver = mgr.PressurePuzzleSlot.Value == slotIndex;
+        SetActiveSafe(pressureGauge, isPressureSolver);
+        SetValvesActive(!isPressureSolver);
     }
 
     private void SetLeversActive(bool active)
@@ -67,6 +82,13 @@ public class PuzzleMapBinding : MonoBehaviour
         if (levers == null) return;
         foreach (var l in levers)
             SetActiveSafe(l, active);
+    }
+
+    private void SetValvesActive(bool active)
+    {
+        if (valves == null) return;
+        foreach (var v in valves)
+            SetActiveSafe(v, active);
     }
 
     private static void SetActiveSafe(GameObject go, bool active)
