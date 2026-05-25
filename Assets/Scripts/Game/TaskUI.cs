@@ -2,54 +2,55 @@ using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 
-// Muestra la tarea actual del jugador local según la asignación del puzzle.
-// Pon este script en el Canvas (o donde quieras) y arrastra el TextMeshPro
-// del HUD.
+// Muestra la tarea del jugador local según los puzzles que tiene asignados.
 public class TaskUI : MonoBehaviour
 {
     [Header("Referencia UI")]
     public TextMeshProUGUI taskText;
 
     [Header("Mensajes de tarea")]
-    public string taskMessageSolver = "Tarea: ingresa el código de 4 dígitos en la consola.";
-    public string taskMessageHelper = "Tarea: busca pistas en las cajas y comparte los números coloreados con tu equipo.";
-    public string taskMessageNoAssignment = "Esperando rompecabezas...";
-    public string taskMessageSolved = "¡Rompecabezas resuelto!";
+    public string msgCodeSolver    = "Ingresa el código en la consola (pide los números a tu equipo).";
+    public string msgPatternSolver = "Mira las 3 luces y avísale a cada compañero si su luz está encendida o apagada.";
+    public string msgHelper        = "Busca pistas en las cajas y combina tus palancas hasta que tu compañero te diga que tu luz está encendida.";
+    public string msgWaiting       = "Esperando rompecabezas...";
+    public string msgAllSolved     = "¡Todos los rompecabezas resueltos!";
 
     private void Update()
     {
         if (taskText == null) return;
 
-        var mgr     = PuzzleAssignmentManager.Instance;
+        var assign  = PuzzleAssignmentManager.Instance;
         var spawner = NetworkPlayerSpawner.Instance;
-        var codeMgr = PuzzleCodeManager.Instance;
 
-        if (mgr == null || spawner == null || NetworkManager.Singleton == null)
+        if (assign == null || spawner == null || NetworkManager.Singleton == null)
         {
-            taskText.text = taskMessageNoAssignment;
+            taskText.text = msgWaiting;
             return;
         }
 
-        // Si el puzzle ya fue resuelto, mostrar mensaje de victoria
-        if (codeMgr != null && codeMgr.IsSolved.Value)
+        if (assign.CodePuzzleSlot.Value < 0 || assign.PatternPuzzleSlot.Value < 0)
         {
-            taskText.text = taskMessageSolved;
+            taskText.text = msgWaiting;
             return;
         }
 
-        // La asignación arranca con -1; mientras no se inicialice mostramos espera
-        if (mgr.CodePuzzleSlot.Value < 0)
+        // Si todo está resuelto, mostrar victoria
+        bool codeSolved    = PuzzleCodeManager.Instance    != null && PuzzleCodeManager.Instance.IsSolved.Value;
+        bool patternSolved = PatternPuzzleManager.Instance != null && PatternPuzzleManager.Instance.IsSolved.Value;
+        if (codeSolved && patternSolved)
         {
-            taskText.text = taskMessageNoAssignment;
+            taskText.text = msgAllSolved;
             return;
         }
 
-        // Determinar si soy el solucionador o un ayudante
-        ulong myId  = NetworkManager.Singleton.LocalClientId;
-        int mySlot  = spawner.GetSlotForClient(myId);
+        ulong myId = NetworkManager.Singleton.LocalClientId;
+        int mySlot = spawner.GetSlotForClient(myId);
 
-        taskText.text = mySlot == mgr.CodePuzzleSlot.Value
-            ? taskMessageSolver
-            : taskMessageHelper;
+        if (mySlot == assign.CodePuzzleSlot.Value)
+            taskText.text = msgCodeSolver;
+        else if (mySlot == assign.PatternPuzzleSlot.Value)
+            taskText.text = msgPatternSolver;
+        else
+            taskText.text = msgHelper;
     }
 }

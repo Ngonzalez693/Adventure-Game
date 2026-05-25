@@ -24,8 +24,7 @@ public class EmptyBoxUI : MonoBehaviour
         if (emptyBoxPanel == null) return;
         emptyBoxPanel.SetActive(true);
 
-        // Pausar juego y liberar cursor para poder clickear "Cerrar"
-        Time.timeScale = 0f;
+        // NO Time.timeScale = 0 (rompe input UI en clientes multijugador).
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }
@@ -33,7 +32,6 @@ public class EmptyBoxUI : MonoBehaviour
     public void Cerrar()
     {
         if (emptyBoxPanel != null) emptyBoxPanel.SetActive(false);
-        Time.timeScale = 1f;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }

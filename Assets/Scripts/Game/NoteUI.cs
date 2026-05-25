@@ -27,8 +27,9 @@ public class NoteUI : MonoBehaviour
         noteText.text = content;
         notePanel.SetActive(true);
 
-        // Pausar el juego y liberar el cursor
-        Time.timeScale = 0f;
+        // NO Time.timeScale = 0: rompe input UI en clientes multijugador.
+        // El "pausado" se hace solo localmente (cursor + PlayerInteraction
+        // detecta esto via PuzzleManager.IsAnyPuzzleOpen/IsAnyNoteOpen).
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }
@@ -36,8 +37,6 @@ public class NoteUI : MonoBehaviour
     public void Cerrar()
     {
         if (notePanel != null) notePanel.SetActive(false);
-
-        Time.timeScale = 1f;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }

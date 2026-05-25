@@ -88,6 +88,16 @@ public class PlayerInteraction : NetworkBehaviour
         // existían los objetos), intentamos resolver de nuevo.
         if (!_uiResolved) ResolveUiReferences();
 
+        // Si hay un modal abierto (puzzle, nota, caja vacía), pausamos la
+        // detección de interactuables: el prompt no debe mostrarse y E no
+        // debe disparar otra interacción.
+        if (PuzzleManager.IsAnyPuzzleOpen || IsAnyNoteOpen())
+        {
+            if (interactionPrompt != null && interactionPrompt.activeSelf)
+                interactionPrompt.SetActive(false);
+            return;
+        }
+
         CheckForInteractable();
 
         if (Keyboard.current.eKey.wasPressedThisFrame && currentInteractable != null)
@@ -134,6 +144,12 @@ public class PlayerInteraction : NetworkBehaviour
         _uiResolved = false;
         interactionPrompt = null;
         promptText = null;
+    }
+
+    private static bool IsAnyNoteOpen()
+    {
+        return (NoteUI.Instance     != null && NoteUI.Instance.notePanel       != null && NoteUI.Instance.notePanel.activeSelf)
+            || (EmptyBoxUI.Instance != null && EmptyBoxUI.Instance.emptyBoxPanel != null && EmptyBoxUI.Instance.emptyBoxPanel.activeSelf);
     }
 
     void OnDrawGizmosSelected()

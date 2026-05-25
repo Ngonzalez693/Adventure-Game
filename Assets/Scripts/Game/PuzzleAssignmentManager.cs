@@ -18,6 +18,10 @@ public class PuzzleAssignmentManager : NetworkBehaviour
     public NetworkVariable<int> CodePuzzleSlot = new(-1,
         NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
+    // Slot que recibe la consola del puzzle de patrón (palancas + luces)
+    public NetworkVariable<int> PatternPuzzleSlot = new(-1,
+        NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
     // Slot donde se ubica la nota numérica de cada color (0..3)
     public NetworkVariable<int> RojoSlot     = new(-1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     public NetworkVariable<int> AzulSlot     = new(-1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
@@ -38,11 +42,12 @@ public class PuzzleAssignmentManager : NetworkBehaviour
             GenerarAsignacion();
 
         // Notificar a los map bindings cuando los valores se actualicen
-        CodePuzzleSlot.OnValueChanged += (_, _) => NotifyMapBindings();
-        RojoSlot.OnValueChanged       += (_, _) => NotifyMapBindings();
-        AzulSlot.OnValueChanged       += (_, _) => NotifyMapBindings();
-        VerdeSlot.OnValueChanged      += (_, _) => NotifyMapBindings();
-        AmarilloSlot.OnValueChanged   += (_, _) => NotifyMapBindings();
+        CodePuzzleSlot.OnValueChanged    += (_, _) => NotifyMapBindings();
+        PatternPuzzleSlot.OnValueChanged += (_, _) => NotifyMapBindings();
+        RojoSlot.OnValueChanged          += (_, _) => NotifyMapBindings();
+        AzulSlot.OnValueChanged          += (_, _) => NotifyMapBindings();
+        VerdeSlot.OnValueChanged         += (_, _) => NotifyMapBindings();
+        AmarilloSlot.OnValueChanged      += (_, _) => NotifyMapBindings();
 
         // Si ya hay valores cuando entramos, refrescar inmediatamente
         NotifyMapBindings();
@@ -50,27 +55,30 @@ public class PuzzleAssignmentManager : NetworkBehaviour
 
     private void GenerarAsignacion()
     {
-        // 1) Slot del solucionador (la consola)
+        // 1) Slot del solucionador del puzzle de código
         int codeSlot = Random.Range(0, totalSlots);
         CodePuzzleSlot.Value = codeSlot;
 
-        // 2) Distribuir las 4 notas numéricas entre los OTROS slots
-        //    (no en el slot del solucionador — él no puede leer sus propias pistas)
-        var otherSlots = new List<int>();
+        // 2) Slot del solucionador del puzzle de patrón (debe ser distinto al del código)
+        var availablePattern = new List<int>();
         for (int i = 0; i < totalSlots; i++)
-            if (i != codeSlot) otherSlots.Add(i);
+            if (i != codeSlot) availablePattern.Add(i);
+        int patternSlot = availablePattern[Random.Range(0, availablePattern.Count)];
+        PatternPuzzleSlot.Value = patternSlot;
 
-        // Asignamos un slot a cada color. Como tenemos 4 colores y 3 slots
-        // disponibles (en una partida de 4 jugadores), al menos un slot tendrá
-        // 2 notas. Hacemos round-robin barajado para distribuir equitativamente.
-        Shuffle(otherSlots);
-        RojoSlot.Value     = otherSlots[0 % otherSlots.Count];
-        AzulSlot.Value     = otherSlots[1 % otherSlots.Count];
-        VerdeSlot.Value    = otherSlots[2 % otherSlots.Count];
-        AmarilloSlot.Value = otherSlots[3 % otherSlots.Count];
+        // 3) Distribuir las 4 notas numéricas entre los OTROS slots del puzzle de código
+        var otherSlotsForCode = new List<int>();
+        for (int i = 0; i < totalSlots; i++)
+            if (i != codeSlot) otherSlotsForCode.Add(i);
+
+        Shuffle(otherSlotsForCode);
+        RojoSlot.Value     = otherSlotsForCode[0 % otherSlotsForCode.Count];
+        AzulSlot.Value     = otherSlotsForCode[1 % otherSlotsForCode.Count];
+        VerdeSlot.Value    = otherSlotsForCode[2 % otherSlotsForCode.Count];
+        AmarilloSlot.Value = otherSlotsForCode[3 % otherSlotsForCode.Count];
 
         Debug.Log($"[PuzzleAssignmentManager] Asignación: " +
-                  $"Console→Slot {CodePuzzleSlot.Value}, " +
+                  $"Code→Slot {CodePuzzleSlot.Value}, Pattern→Slot {PatternPuzzleSlot.Value}, " +
                   $"Rojo→{RojoSlot.Value}, Azul→{AzulSlot.Value}, " +
                   $"Verde→{VerdeSlot.Value}, Amarillo→{AmarilloSlot.Value}");
     }

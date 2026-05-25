@@ -1,41 +1,65 @@
 using UnityEngine;
 
-// Pon este script en cada _Map N. Su única responsabilidad ahora es activar/
-// desactivar la CONSOLA del puzzle de código, que solo existe físicamente en
-// el mapa del jugador solucionador (al ser una pieza grande de "hardware").
+// Pon este script en cada _Map N. Activa/desactiva los objetos físicos del
+// puzzle que solo deben existir según el rol asignado.
 //
-// Las cajas (notas con orden de colores o números coloreados) NO se manejan
-// aquí — siempre están visibles y deciden su contenido al interactuar
-// (ver MysteryBox.cs).
+// Las cajas (MysteryBox) NO se manejan aquí — siempre están visibles.
 public class PuzzleMapBinding : MonoBehaviour
 {
     [Header("Slot de este mapa")]
     [Tooltip("Slot del jugador asociado a este mapa (0..3). Map1=0, Map2=1, etc.")]
     public int slotIndex;
 
-    [Header("Consola del puzzle de código")]
-    [Tooltip("El terminal donde el jugador ingresa el código. Solo se activa " +
-             "en el mapa del slot elegido como solucionador.")]
+    [Header("Puzzle de código")]
+    [Tooltip("Consola del puzzle de código. Activa solo en el mapa del solucionador.")]
     public GameObject codeConsole;
+
+    [Header("Puzzle de patrón")]
+    [Tooltip("Panel de luces (3 esferas LightIndicator). Activo solo en el mapa " +
+             "del solucionador del puzzle de patrón.")]
+    public GameObject patternLightPanel;
+
+    [Tooltip("Las 3 palancas binarias de este mapa. Activas para todos los slots " +
+             "EXCEPTO el solucionador del patrón. Tamaño esperado: 3.")]
+    public GameObject[] levers;
 
     private void Start()
     {
-        // Por defecto la consola está apagada hasta que la asignación decida
-        // quién la recibe.
-        if (codeConsole != null) codeConsole.SetActive(false);
+        SetActiveSafe(codeConsole, false);
+        SetActiveSafe(patternLightPanel, false);
+        SetLeversActive(false);
 
         if (PuzzleAssignmentManager.Instance != null)
             ApplyAssignment();
     }
 
-    // Llamado por PuzzleAssignmentManager cuando cambia la asignación.
     public void ApplyAssignment()
     {
         var mgr = PuzzleAssignmentManager.Instance;
-        if (mgr == null || codeConsole == null) return;
+        if (mgr == null) return;
 
+        // Puzzle de código: solo la consola en el mapa del solucionador
         bool isCodeSolver = mgr.CodePuzzleSlot.Value == slotIndex;
-        if (codeConsole.activeSelf != isCodeSolver)
-            codeConsole.SetActive(isCodeSolver);
+        SetActiveSafe(codeConsole, isCodeSolver);
+
+        // Puzzle de patrón:
+        //  - El solucionador ve el panel de luces (no tiene palancas)
+        //  - Los demás tienen 3 palancas (no tienen luces)
+        bool isPatternSolver = mgr.PatternPuzzleSlot.Value == slotIndex;
+        SetActiveSafe(patternLightPanel, isPatternSolver);
+        SetLeversActive(!isPatternSolver);
+    }
+
+    private void SetLeversActive(bool active)
+    {
+        if (levers == null) return;
+        foreach (var l in levers)
+            SetActiveSafe(l, active);
+    }
+
+    private static void SetActiveSafe(GameObject go, bool active)
+    {
+        if (go != null && go.activeSelf != active)
+            go.SetActive(active);
     }
 }
