@@ -28,6 +28,9 @@ public class MysteryBox : MonoBehaviour, IInteractable
 
     public void Interact()
     {
+        if (SoundManager.Instance != null)
+            SoundManager.Instance.PlayBoxOpen();
+
         if (HasContentNow())
             ShowContent();
         else

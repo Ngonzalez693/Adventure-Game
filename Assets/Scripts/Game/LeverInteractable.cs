@@ -56,6 +56,10 @@ public class LeverInteractable : MonoBehaviour, IInteractable
             Debug.LogWarning("[LeverInteractable] PatternPuzzleManager no encontrado.");
             return;
         }
+
+        if (SoundManager.Instance != null)
+            SoundManager.Instance.PlayValveTurn(); // reutilizamos el sonido "Girar"
+
         PatternPuzzleManager.Instance.ToggleLeverServerRpc(mapSlot, leverIndex);
     }
 

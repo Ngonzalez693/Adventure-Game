@@ -48,18 +48,18 @@ public class NumberPuzzleUI : MonoBehaviour
         {
             int num = i;
             numberButtons[i].onClick.RemoveAllListeners();
-            numberButtons[i].onClick.AddListener(() => PresionarNumero(num));
+            numberButtons[i].onClick.AddListener(() => { PlayPressSfx(); PresionarNumero(num); });
         }
 
         // Conectar botones de acción
         btnBorrar.onClick.RemoveAllListeners();
-        btnBorrar.onClick.AddListener(Borrar);
+        btnBorrar.onClick.AddListener(() => { PlayPressSfx(); Borrar(); });
 
         btnConfirmar.onClick.RemoveAllListeners();
-        btnConfirmar.onClick.AddListener(Confirmar);
+        btnConfirmar.onClick.AddListener(() => { PlayPressSfx(); Confirmar(); });
 
         btnCerrar.onClick.RemoveAllListeners();
-        btnCerrar.onClick.AddListener(() => PuzzleManager.Instance.CerrarPuzzle());
+        btnCerrar.onClick.AddListener(() => { PlayPressSfx(); PuzzleManager.Instance.CerrarPuzzle(); });
     }
 
     void PresionarNumero(int num)
@@ -138,5 +138,11 @@ public class NumberPuzzleUI : MonoBehaviour
             PuzzleCodeManager.Instance.MarcarResueltoServerRpc();
 
         PuzzleManager.Instance.PuzzleCompletado();
+    }
+
+    private static void PlayPressSfx()
+    {
+        if (SoundManager.Instance != null)
+            SoundManager.Instance.PlayMenuButton();
     }
 }

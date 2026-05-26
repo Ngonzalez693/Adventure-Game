@@ -41,11 +41,35 @@ public class MemoryPuzzleManager : NetworkBehaviour
     {
         if (IsServer)
             GenerarSecuencias();
+
+        // Todos los clientes (y host) reaccionan a estos cambios para sonidos.
+        Progress.OnValueChanged += OnProgressChanged;
+        IsSolved.OnValueChanged += OnSolvedChanged;
     }
 
     public override void OnNetworkDespawn()
     {
+        Progress.OnValueChanged -= OnProgressChanged;
+        IsSolved.OnValueChanged -= OnSolvedChanged;
         if (Instance == this) Instance = null;
+    }
+
+    private void OnProgressChanged(int previous, int next)
+    {
+        // Si el progreso cae a 0 desde algún valor positivo (y no es porque
+        // se acaba de resolver), fue una pulsación incorrecta → suena error.
+        if (next == 0 && previous > 0 && !IsSolved.Value)
+        {
+            if (SoundManager.Instance != null) SoundManager.Instance.PlayError();
+        }
+    }
+
+    private void OnSolvedChanged(bool previous, bool next)
+    {
+        if (next && !previous)
+        {
+            if (SoundManager.Instance != null) SoundManager.Instance.PlayPuzzleSolved();
+        }
     }
 
     private void GenerarSecuencias()

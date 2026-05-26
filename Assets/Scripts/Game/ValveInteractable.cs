@@ -55,6 +55,10 @@ public class ValveInteractable : MonoBehaviour, IInteractable
             Debug.LogWarning("[ValveInteractable] PressurePuzzleManager no encontrado.");
             return;
         }
+
+        if (SoundManager.Instance != null)
+            SoundManager.Instance.PlayValveTurn();
+
         PressurePuzzleManager.Instance.ToggleValveServerRpc(mapSlot, valveIndex);
     }
 

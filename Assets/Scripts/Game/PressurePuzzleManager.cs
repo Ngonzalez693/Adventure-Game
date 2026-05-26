@@ -59,11 +59,20 @@ public class PressurePuzzleManager : NetworkBehaviour
     {
         if (IsServer)
             GeneratePuzzle();
+
+        IsSolved.OnValueChanged += OnSolvedChanged;
     }
 
     public override void OnNetworkDespawn()
     {
+        IsSolved.OnValueChanged -= OnSolvedChanged;
         if (Instance == this) Instance = null;
+    }
+
+    private void OnSolvedChanged(bool previous, bool next)
+    {
+        if (next && !previous && SoundManager.Instance != null)
+            SoundManager.Instance.PlayPuzzleSolved();
     }
 
     private void GeneratePuzzle()

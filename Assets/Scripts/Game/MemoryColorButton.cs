@@ -36,6 +36,10 @@ public class MemoryColorButton : MonoBehaviour, IInteractable
             Debug.LogWarning("[MemoryColorButton] MemoryPuzzleManager no encontrado.");
             return;
         }
+
+        if (SoundManager.Instance != null)
+            SoundManager.Instance.PlayMemoryButton();
+
         MemoryPuzzleManager.Instance.PressColorServerRpc(colorIndex);
     }
 

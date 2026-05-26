@@ -71,6 +71,9 @@ public class MemorySequenceViewer : MonoBehaviour, IInteractable
             return;
         }
 
+        if (SoundManager.Instance != null)
+            SoundManager.Instance.PlayMenuButton();
+
         int[] seq = puzzle.GetSequenceForPosition(myPos);
         StartCoroutine(PlaySequenceCoroutine(seq));
     }
