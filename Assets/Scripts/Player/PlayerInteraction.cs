@@ -88,10 +88,11 @@ public class PlayerInteraction : NetworkBehaviour
         // existían los objetos), intentamos resolver de nuevo.
         if (!_uiResolved) ResolveUiReferences();
 
-        // Si hay un modal abierto (puzzle, nota, caja vacía), pausamos la
-        // detección de interactuables: el prompt no debe mostrarse y E no
-        // debe disparar otra interacción.
-        if (PuzzleManager.IsAnyPuzzleOpen || IsAnyNoteOpen())
+        // Si hay un modal abierto (puzzle, nota, caja vacía), o el juego ya
+        // terminó (victoria/derrota), pausamos la detección de interactuables:
+        // el prompt no debe mostrarse y E no debe disparar otra interacción.
+        bool gameOver = GameStateManager.Instance != null && GameStateManager.Instance.IsGameOver;
+        if (PuzzleManager.IsAnyPuzzleOpen || IsAnyNoteOpen() || gameOver)
         {
             if (interactionPrompt != null && interactionPrompt.activeSelf)
                 interactionPrompt.SetActive(false);
