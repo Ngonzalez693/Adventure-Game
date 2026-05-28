@@ -963,6 +963,7 @@ GameObject:
   - component: {fileID: 4144127064688463128}
   - component: {fileID: -2801320507829994817}
   - component: {fileID: 7522261473943184506}
+  - component: {fileID: -4430378262814133398}
   m_Layer: 8
   m_Name: Player1
   m_TagString: Player
@@ -1348,6 +1349,27 @@ MonoBehaviour:
       Synchronize: 1
       ParameterType: 1
   AnimatorParametersExpanded: 0
+--- !u!114 &-4430378262814133398
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 989855982501635159}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b5cb38c37387ca448601052ecd6fa27, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerBodyTexture
+  ShowTopMostFoldoutHeaderGroup: 1
+  slotTextures:
+  - {fileID: 2800000, guid: 6853f4323220c8a4f9fa2c15d3f266be, type: 3}
+  - {fileID: 2800000, guid: 9878fef611633ff45af9a501cf14adb4, type: 3}
+  - {fileID: 2800000, guid: f6fb9df16e157804590e9c7b8b63df84, type: 3}
+  - {fileID: 2800000, guid: 8e45990b79a92e34f92acdc462704577, type: 3}
+  bodyRenderers:
+  - {fileID: 5033099761631070019}
+  texturePropertyName: _BaseMap
 --- !u!1 &1035450274648118074
 GameObject:
   m_ObjectHideFlags: 0

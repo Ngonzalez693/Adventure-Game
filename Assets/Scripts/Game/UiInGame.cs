@@ -81,6 +81,11 @@ public class UiInGame : MonoBehaviour
             NetworkManager.Singleton.Shutdown();
         }
 
+        // CRÍTICO: limpiar el mapeo estático de slots de NetworkPlayerSpawner.
+        // Si no lo hacemos, los slots del juego anterior persisten en memoria y
+        // la próxima partida puede asignar dos jugadores al mismo mapa.
+        NetworkPlayerSpawner.ResetSlots();
+
         SceneManager.LoadScene(nameEscenaMenu);
     }
 

@@ -22,7 +22,6 @@ public class NetworkPlayerSpawner : NetworkBehaviour
     // cliente se conecta por primera vez y se mantiene aunque cambien las
     // escenas.
     private static readonly Dictionary<ulong, int> _slotByClientId = new();
-    private static int _nextSlot;
 
     // Mapeo sincronizado: índice = slot, valor = clientId. Lo escribe el
     // servidor en OnNetworkSpawn y todos los clientes lo leen para saber qué
@@ -132,7 +131,25 @@ public class NetworkPlayerSpawner : NetworkBehaviour
     private void EnsureSlotForClient(ulong clientId)
     {
         if (_slotByClientId.ContainsKey(clientId)) return;
-        _slotByClientId[clientId] = _nextSlot++;
+
+        // Buscar el slot LIBRE más bajo (0..maxSlots-1). De este modo, cuando
+        // un jugador se desconecta y otro se une, el nuevo reusa el slot
+        // liberado en lugar de obtener un índice creciente que colisionaría
+        // con el módulo de spawnPoints.Length.
+        int maxSlots = spawnPoints != null && spawnPoints.Length > 0 ? spawnPoints.Length : 4;
+        var usedSlots = new HashSet<int>(_slotByClientId.Values);
+
+        int slot = 0;
+        while (slot < maxSlots && usedSlots.Contains(slot)) slot++;
+
+        if (slot >= maxSlots)
+        {
+            Debug.LogWarning($"[NetworkPlayerSpawner] Todos los {maxSlots} slots ocupados; " +
+                             $"cliente {clientId} comparte slot por módulo.");
+            slot = _slotByClientId.Count % maxSlots;
+        }
+
+        _slotByClientId[clientId] = slot;
     }
 
     // SOLO SERVIDOR. Refresca la NetworkList con el mapeo slot → clientId
@@ -190,6 +207,5 @@ public class NetworkPlayerSpawner : NetworkBehaviour
     public static void ResetSlots()
     {
         _slotByClientId.Clear();
-        _nextSlot = 0;
     }
 }
