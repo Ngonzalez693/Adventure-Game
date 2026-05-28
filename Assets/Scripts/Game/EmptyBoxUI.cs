@@ -23,16 +23,12 @@ public class EmptyBoxUI : MonoBehaviour
     {
         if (emptyBoxPanel == null) return;
         emptyBoxPanel.SetActive(true);
-
-        // NO Time.timeScale = 0 (rompe input UI en clientes multijugador).
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
+        // El cursor lo mantiene libre CursorAlwaysFree (global).
     }
 
     public void Cerrar()
     {
         if (emptyBoxPanel != null) emptyBoxPanel.SetActive(false);
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        // No tocamos el cursor.
     }
 }

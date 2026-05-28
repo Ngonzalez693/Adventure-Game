@@ -24,29 +24,12 @@ public class PuzzleManager : MonoBehaviour
         CerrarTodo();
     }
 
-    // Mientras un puzzle esté abierto, forzamos el cursor visible/libre en
-    // CADA frame. Esto cubre el caso donde otro script (cámara, controller,
-    // etc.) intenta re-lockearlo y bloquea los clics en los botones.
-    void LateUpdate()
-    {
-        if (!_puzzleOpen) return;
-
-        if (Cursor.lockState != CursorLockMode.None) Cursor.lockState = CursorLockMode.None;
-        if (!Cursor.visible)                          Cursor.visible   = true;
-    }
-
     public void AbrirPuzzle(InteractableObject.PuzzleType tipo, InteractableObject objeto)
     {
         currentObject = objeto;
         CerrarTodo();
 
-        // NO usamos Time.timeScale = 0 porque en multijugador rompe la
-        // recepción de input UI en algunos clientes (sigue funcionando solo
-        // en el host). En su lugar marcamos un flag global "puzzle abierto"
-        // y dejamos que otros sistemas (movimiento del jugador, prompt de
-        // interacción) lo consulten para auto-pausarse localmente.
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible   = true;
+        // El cursor lo mantiene libre el script CursorAlwaysFree (a nivel global).
         _puzzleOpen      = true;
         IsAnyPuzzleOpen  = true;
 
@@ -70,8 +53,7 @@ public class PuzzleManager : MonoBehaviour
         CerrarTodo();
         _puzzleOpen      = false;
         IsAnyPuzzleOpen  = false;
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible   = false;
+        // No tocamos el cursor.
     }
 
     void CerrarTodo()

@@ -45,14 +45,7 @@ public class UiInGame : MonoBehaviour
 
         bool open = !optionsPanel.activeSelf;
         optionsPanel.SetActive(open);
-
-        Debug.Log($"[UiInGame] OptionsPanel '{optionsPanel.name}' (id={optionsPanel.GetInstanceID()}) " +
-                  $"→ active={optionsPanel.activeSelf}, activeInHierarchy={optionsPanel.activeInHierarchy}");
-
-        // Cuando se abre el panel, liberamos y mostramos el cursor para que
-        // se puedan clickear los botones. Al cerrarlo, lo volvemos a bloquear.
-        Cursor.lockState = open ? CursorLockMode.None : CursorLockMode.Locked;
-        Cursor.visible   = open;
+        // No tocamos el cursor: CursorAlwaysFree lo mantiene libre.
     }
 
     // Auxiliary method to close the options panel from a "Back" button inside the panel
@@ -60,10 +53,7 @@ public class UiInGame : MonoBehaviour
     {
         if (optionsPanel != null)
             optionsPanel.SetActive(false);
-
-        // Restaurar el cursor bloqueado al estilo de juego
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible   = false;
+        // No tocamos el cursor.
     }
 
     // ────────────────────────────────────────────────
